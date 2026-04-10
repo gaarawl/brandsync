@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { signIn } from "next-auth/react";
 import { Sparkles, Mail, Lock, ArrowRight, Eye, EyeOff } from "lucide-react";
 import { motion } from "framer-motion";
 import Link from "next/link";
@@ -9,6 +10,31 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  async function handleGoogleSignIn() {
+    await signIn("google", { callbackUrl: "/dashboard" });
+  }
+
+  async function handleCredentialsSignIn(e: React.FormEvent) {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+
+    const result = await signIn("credentials", {
+      email,
+      password,
+      redirect: false,
+    });
+
+    if (result?.error) {
+      setError("Email ou mot de passe incorrect.");
+      setLoading(false);
+    } else {
+      window.location.href = "/dashboard";
+    }
+  }
 
   return (
     <div className="relative flex min-h-screen items-center justify-center bg-bg-primary px-6">
@@ -36,7 +62,10 @@ export default function LoginPage() {
         {/* Card */}
         <div className="rounded-2xl border border-border-subtle bg-bg-surface p-8 space-y-6">
           {/* Google button */}
-          <button className="flex w-full items-center justify-center gap-3 rounded-xl border border-border-medium bg-bg-primary px-4 py-3 text-sm font-medium text-text-primary transition-all hover:border-border-medium hover:bg-bg-elevated">
+          <button
+            onClick={handleGoogleSignIn}
+            className="flex w-full items-center justify-center gap-3 rounded-xl border border-border-medium bg-bg-primary px-4 py-3 text-sm font-medium text-text-primary transition-all hover:border-border-medium hover:bg-bg-elevated cursor-pointer"
+          >
             <svg className="h-5 w-5" viewBox="0 0 24 24">
               <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4" />
               <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
@@ -53,11 +82,15 @@ export default function LoginPage() {
             <div className="h-px flex-1 bg-border-subtle" />
           </div>
 
+          {/* Error */}
+          {error && (
+            <div className="rounded-lg bg-red-500/10 border border-red-500/20 px-4 py-3 text-sm text-red-400">
+              {error}
+            </div>
+          )}
+
           {/* Form */}
-          <form
-            onSubmit={(e) => e.preventDefault()}
-            className="space-y-4"
-          >
+          <form onSubmit={handleCredentialsSignIn} className="space-y-4">
             {/* Email */}
             <div className="space-y-2">
               <label htmlFor="email" className="text-sm font-medium text-text-primary">
@@ -71,6 +104,7 @@ export default function LoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="vous@exemple.com"
+                  required
                   className="w-full rounded-xl border border-border-subtle bg-bg-primary py-3 pl-10 pr-4 text-sm text-text-primary placeholder:text-text-muted outline-none transition-colors focus:border-accent/50 focus:ring-1 focus:ring-accent/20"
                 />
               </div>
@@ -94,6 +128,7 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Votre mot de passe"
+                  required
                   className="w-full rounded-xl border border-border-subtle bg-bg-primary py-3 pl-10 pr-11 text-sm text-text-primary placeholder:text-text-muted outline-none transition-colors focus:border-accent/50 focus:ring-1 focus:ring-accent/20"
                 />
                 <button
@@ -109,12 +144,13 @@ export default function LoginPage() {
             {/* Submit */}
             <motion.button
               type="submit"
+              disabled={loading}
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.99 }}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-accent px-4 py-3 text-sm font-semibold text-bg-primary transition-colors hover:bg-accent-glow shadow-lg shadow-accent-glow/20"
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-accent px-4 py-3 text-sm font-semibold text-bg-primary transition-colors hover:bg-accent-glow shadow-lg shadow-accent-glow/20 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Se connecter
-              <ArrowRight className="h-4 w-4" />
+              {loading ? "Connexion..." : "Se connecter"}
+              {!loading && <ArrowRight className="h-4 w-4" />}
             </motion.button>
           </form>
         </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { signIn } from "next-auth/react";
 import { Sparkles, Mail, Lock, User, ArrowRight, Eye, EyeOff, CircleCheck } from "lucide-react";
 import { motion } from "framer-motion";
 import Link from "next/link";
@@ -10,12 +11,35 @@ export default function SignupPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const benefits = [
     "14 jours d'essai gratuit",
     "Aucune carte bancaire requise",
     "Accès immédiat au dashboard",
   ];
+
+  async function handleGoogleSignUp() {
+    await signIn("google", { callbackUrl: "/dashboard" });
+  }
+
+  async function handleSignUp(e: React.FormEvent) {
+    e.preventDefault();
+    setLoading(true);
+
+    // Pour l'instant, on sign in directement avec les credentials
+    // Plus tard : créer le user en base puis sign in
+    const result = await signIn("credentials", {
+      email,
+      password,
+      redirect: false,
+    });
+
+    if (!result?.error) {
+      window.location.href = "/dashboard";
+    }
+    setLoading(false);
+  }
 
   return (
     <div className="relative flex min-h-screen items-center justify-center bg-bg-primary px-6">
@@ -56,7 +80,10 @@ export default function SignupPage() {
           <div className="h-px bg-border-subtle" />
 
           {/* Google button */}
-          <button className="flex w-full items-center justify-center gap-3 rounded-xl border border-border-medium bg-bg-primary px-4 py-3 text-sm font-medium text-text-primary transition-all hover:border-border-medium hover:bg-bg-elevated">
+          <button
+            onClick={handleGoogleSignUp}
+            className="flex w-full items-center justify-center gap-3 rounded-xl border border-border-medium bg-bg-primary px-4 py-3 text-sm font-medium text-text-primary transition-all hover:border-border-medium hover:bg-bg-elevated cursor-pointer"
+          >
             <svg className="h-5 w-5" viewBox="0 0 24 24">
               <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4" />
               <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
@@ -74,10 +101,7 @@ export default function SignupPage() {
           </div>
 
           {/* Form */}
-          <form
-            onSubmit={(e) => e.preventDefault()}
-            className="space-y-4"
-          >
+          <form onSubmit={handleSignUp} className="space-y-4">
             {/* Name */}
             <div className="space-y-2">
               <label htmlFor="name" className="text-sm font-medium text-text-primary">
@@ -91,6 +115,7 @@ export default function SignupPage() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Emma Laurent"
+                  required
                   className="w-full rounded-xl border border-border-subtle bg-bg-primary py-3 pl-10 pr-4 text-sm text-text-primary placeholder:text-text-muted outline-none transition-colors focus:border-accent/50 focus:ring-1 focus:ring-accent/20"
                 />
               </div>
@@ -109,6 +134,7 @@ export default function SignupPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="vous@exemple.com"
+                  required
                   className="w-full rounded-xl border border-border-subtle bg-bg-primary py-3 pl-10 pr-4 text-sm text-text-primary placeholder:text-text-muted outline-none transition-colors focus:border-accent/50 focus:ring-1 focus:ring-accent/20"
                 />
               </div>
@@ -127,6 +153,8 @@ export default function SignupPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Minimum 8 caractères"
+                  required
+                  minLength={8}
                   className="w-full rounded-xl border border-border-subtle bg-bg-primary py-3 pl-10 pr-11 text-sm text-text-primary placeholder:text-text-muted outline-none transition-colors focus:border-accent/50 focus:ring-1 focus:ring-accent/20"
                 />
                 <button
@@ -142,12 +170,13 @@ export default function SignupPage() {
             {/* Submit */}
             <motion.button
               type="submit"
+              disabled={loading}
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.99 }}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-accent px-4 py-3 text-sm font-semibold text-bg-primary transition-colors hover:bg-accent-glow shadow-lg shadow-accent-glow/20"
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-accent px-4 py-3 text-sm font-semibold text-bg-primary transition-colors hover:bg-accent-glow shadow-lg shadow-accent-glow/20 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Créer mon compte
-              <ArrowRight className="h-4 w-4" />
+              {loading ? "Création..." : "Créer mon compte"}
+              {!loading && <ArrowRight className="h-4 w-4" />}
             </motion.button>
           </form>
         </div>
