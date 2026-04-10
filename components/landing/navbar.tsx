@@ -44,10 +44,10 @@ export default function Navbar() {
 
         {/* Desktop actions */}
         <div className="hidden items-center gap-3 md:flex">
-          <PremiumButton variant="ghost" href="#">
+          <PremiumButton variant="ghost" href="/login">
             Se connecter
           </PremiumButton>
-          <PremiumButton variant="primary" href="#">
+          <PremiumButton variant="primary" href="/signup">
             Essayer gratuitement
           </PremiumButton>
         </div>
@@ -84,10 +84,10 @@ export default function Navbar() {
                 </a>
               ))}
               <hr className="border-border-subtle" />
-              <PremiumButton variant="ghost" href="#">
+              <PremiumButton variant="ghost" href="/login">
                 Se connecter
               </PremiumButton>
-              <PremiumButton variant="primary" href="#">
+              <PremiumButton variant="primary" href="/signup">
                 Essayer gratuitement
               </PremiumButton>
             </div>
