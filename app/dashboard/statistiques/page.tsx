@@ -9,9 +9,34 @@ const monthlyRevenue = [
   { month: "Mar", value: 4900 },
   { month: "Avr", value: 8200 },
   { month: "Mai", value: 12540 },
+  { month: "Jun", value: 9800 },
+  { month: "Jul", value: 11200 },
 ];
 
 const maxRevenue = Math.max(...monthlyRevenue.map((m) => m.value));
+const chartWidth = 500;
+const chartHeight = 200;
+const padding = { top: 20, right: 20, bottom: 30, left: 50 };
+const innerWidth = chartWidth - padding.left - padding.right;
+const innerHeight = chartHeight - padding.top - padding.bottom;
+
+function getX(i: number) {
+  return padding.left + (i / (monthlyRevenue.length - 1)) * innerWidth;
+}
+function getY(val: number) {
+  return padding.top + innerHeight - (val / maxRevenue) * innerHeight;
+}
+
+const linePath = monthlyRevenue
+  .map((m, i) => `${i === 0 ? "M" : "L"} ${getX(i)} ${getY(m.value)}`)
+  .join(" ");
+
+const areaPath = `${linePath} L ${getX(monthlyRevenue.length - 1)} ${padding.top + innerHeight} L ${getX(0)} ${padding.top + innerHeight} Z`;
+
+const gridLines = [0, 0.25, 0.5, 0.75, 1].map((pct) => ({
+  y: padding.top + innerHeight - pct * innerHeight,
+  label: `${((pct * maxRevenue) / 1000).toFixed(0)}k`,
+}));
 
 const topBrands = [
   { name: "CloudFit", revenue: "5 600 €", campaigns: 2, percentage: 75 },
@@ -119,21 +144,88 @@ export default function StatistiquesPage() {
           transition={{ delay: 0.2 }}
           className="rounded-xl border border-border-subtle bg-bg-surface p-5"
         >
-          <h2 className="text-sm font-semibold text-text-primary mb-6">Revenus mensuels</h2>
-          <div className="flex items-end gap-3 h-48">
-            {monthlyRevenue.map((m) => (
-              <div key={m.month} className="flex-1 flex flex-col items-center gap-2">
-                <span className="text-xs font-medium text-text-primary">
-                  {(m.value / 1000).toFixed(1)}k
-                </span>
-                <div
-                  className="w-full rounded-t-lg bg-gradient-to-t from-accent/50 to-accent transition-all"
-                  style={{ height: `${(m.value / maxRevenue) * 100}%` }}
-                />
-                <span className="text-[11px] text-text-muted">{m.month}</span>
-              </div>
-            ))}
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-sm font-semibold text-text-primary">Revenus mensuels</h2>
+            <span className="text-xs text-text-muted">2026</span>
           </div>
+          <svg viewBox={`0 0 ${chartWidth} ${chartHeight}`} className="w-full h-auto">
+            <defs>
+              <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#8B5CF6" stopOpacity="0.3" />
+                <stop offset="100%" stopColor="#8B5CF6" stopOpacity="0" />
+              </linearGradient>
+              <linearGradient id="lineGradient" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stopColor="#A78BFA" />
+                <stop offset="100%" stopColor="#8B5CF6" />
+              </linearGradient>
+            </defs>
+
+            {/* Grid lines */}
+            {gridLines.map((g) => (
+              <g key={g.label}>
+                <line
+                  x1={padding.left}
+                  y1={g.y}
+                  x2={chartWidth - padding.right}
+                  y2={g.y}
+                  stroke="rgba(255,255,255,0.06)"
+                  strokeDasharray="4 4"
+                />
+                <text
+                  x={padding.left - 8}
+                  y={g.y + 4}
+                  textAnchor="end"
+                  className="text-[10px] fill-[#71717A]"
+                >
+                  {g.label}
+                </text>
+              </g>
+            ))}
+
+            {/* Area */}
+            <path d={areaPath} fill="url(#areaGradient)" />
+
+            {/* Line */}
+            <path
+              d={linePath}
+              fill="none"
+              stroke="url(#lineGradient)"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+
+            {/* Data points */}
+            {monthlyRevenue.map((m, i) => (
+              <g key={m.month}>
+                <circle
+                  cx={getX(i)}
+                  cy={getY(m.value)}
+                  r="4"
+                  fill="#0B0B0D"
+                  stroke="#A78BFA"
+                  strokeWidth="2"
+                />
+                <text
+                  x={getX(i)}
+                  y={getY(m.value) - 12}
+                  textAnchor="middle"
+                  className="text-[9px] fill-[#A1A1AA] font-medium"
+                >
+                  {(m.value / 1000).toFixed(1)}k
+                </text>
+                {/* Month labels */}
+                <text
+                  x={getX(i)}
+                  y={chartHeight - 6}
+                  textAnchor="middle"
+                  className="text-[10px] fill-[#71717A]"
+                >
+                  {m.month}
+                </text>
+              </g>
+            ))}
+          </svg>
         </motion.div>
 
         {/* Platform breakdown */}
