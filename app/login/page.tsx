@@ -40,7 +40,8 @@ export default function LoginPage() {
     <div className="relative flex min-h-screen items-center justify-center bg-bg-primary px-6">
       {/* Background effects */}
       <div className="pointer-events-none absolute inset-0 bg-radial-top" />
-      <div className="pointer-events-none absolute inset-0 bg-grid opacity-30" />
+      <div className="pointer-events-none absolute inset-0 bg-orb-left" />
+      <div className="pointer-events-none absolute inset-0 bg-noise" />
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}

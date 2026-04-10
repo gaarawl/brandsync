@@ -47,7 +47,9 @@ export default function Hero() {
     <section className="relative overflow-hidden pt-32 pb-20 lg:pt-40 lg:pb-32">
       {/* Background effects */}
       <div className="pointer-events-none absolute inset-0 bg-radial-top" />
-      <div className="pointer-events-none absolute inset-0 bg-grid opacity-40" />
+      <div className="pointer-events-none absolute inset-0 bg-orb-left" />
+      <div className="pointer-events-none absolute inset-0 bg-orb-right" />
+      <div className="pointer-events-none absolute inset-0 bg-noise" />
 
       <div className="relative mx-auto max-w-7xl px-6">
         {/* ── Text content ── */}
