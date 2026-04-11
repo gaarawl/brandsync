@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import Sidebar from "@/components/dashboard/sidebar";
+import AIChat from "@/components/dashboard/ai-chat";
 
 export default async function DashboardLayout({
   children,
@@ -23,6 +24,7 @@ export default async function DashboardLayout({
         }}
       />
       <div className="flex-1 flex flex-col overflow-hidden">{children}</div>
+      <AIChat />
     </div>
   );
 }
