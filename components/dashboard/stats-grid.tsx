@@ -3,49 +3,68 @@
 import { TrendingUp, Users, Clock, FileText } from "lucide-react";
 import { motion } from "framer-motion";
 
-const stats = [
-  {
-    label: "Revenus (mois)",
-    value: "12 540 €",
-    sub: "+24% vs mois dernier",
-    subColor: "text-green-400",
-    icon: TrendingUp,
-    iconBg: "bg-green-500/10",
-    iconColor: "text-green-400",
-  },
-  {
-    label: "Collabs en cours",
-    value: "7",
-    sub: "+2 cette semaine",
-    subColor: "text-green-400",
-    icon: Users,
-    iconBg: "bg-accent/10",
-    iconColor: "text-accent",
-  },
-  {
-    label: "Paiements en attente",
-    value: "3 950 €",
-    sub: "2 factures à relancer",
-    subColor: "text-yellow-400",
-    icon: Clock,
-    iconBg: "bg-yellow-500/10",
-    iconColor: "text-yellow-400",
-  },
-  {
-    label: "Contenus à rendre",
-    value: "4",
-    sub: "Prochain : 15 mai",
-    subColor: "text-text-muted",
-    icon: FileText,
-    iconBg: "bg-blue-500/10",
-    iconColor: "text-blue-400",
-  },
-];
+type Stats = {
+  revenue: number;
+  activeCollabs: number;
+  pendingAmount: number;
+  upcomingCount: number;
+  nextDeadline: string | null;
+};
 
-export default function StatsGrid() {
+export default function StatsGrid({ stats }: { stats: Stats }) {
+  const cards = [
+    {
+      label: "Revenus (total)",
+      value: `${stats.revenue.toLocaleString("fr-FR")} \u20ac`,
+      sub:
+        stats.revenue > 0
+          ? "Collaborations pay\u00e9es"
+          : "Aucun paiement re\u00e7u",
+      subColor: stats.revenue > 0 ? "text-green-400" : "text-text-muted",
+      icon: TrendingUp,
+      iconBg: "bg-green-500/10",
+      iconColor: "text-green-400",
+    },
+    {
+      label: "Collabs en cours",
+      value: String(stats.activeCollabs),
+      sub:
+        stats.activeCollabs > 0
+          ? "En production / n\u00e9gociation"
+          : "Aucune collab active",
+      subColor: stats.activeCollabs > 0 ? "text-green-400" : "text-text-muted",
+      icon: Users,
+      iconBg: "bg-accent/10",
+      iconColor: "text-accent",
+    },
+    {
+      label: "Paiements en attente",
+      value: `${stats.pendingAmount.toLocaleString("fr-FR")} \u20ac`,
+      sub:
+        stats.pendingAmount > 0
+          ? "Factures \u00e0 encaisser"
+          : "Aucun paiement en attente",
+      subColor: stats.pendingAmount > 0 ? "text-yellow-400" : "text-text-muted",
+      icon: Clock,
+      iconBg: "bg-yellow-500/10",
+      iconColor: "text-yellow-400",
+    },
+    {
+      label: "Contenus \u00e0 rendre",
+      value: String(stats.upcomingCount),
+      sub: stats.nextDeadline
+        ? `Prochain : ${stats.nextDeadline}`
+        : "Aucune deadline",
+      subColor: "text-text-muted",
+      icon: FileText,
+      iconBg: "bg-blue-500/10",
+      iconColor: "text-blue-400",
+    },
+  ];
+
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-      {stats.map((stat, i) => (
+      {cards.map((stat, i) => (
         <motion.div
           key={stat.label}
           initial={{ opacity: 0, y: 20 }}
