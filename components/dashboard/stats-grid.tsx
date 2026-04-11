@@ -15,11 +15,11 @@ export default function StatsGrid({ stats }: { stats: Stats }) {
   const cards = [
     {
       label: "Revenus (total)",
-      value: `${stats.revenue.toLocaleString("fr-FR")} \u20ac`,
+      value: `${stats.revenue.toLocaleString("fr-FR")} €`,
       sub:
         stats.revenue > 0
-          ? "Collaborations pay\u00e9es"
-          : "Aucun paiement re\u00e7u",
+          ? "Collaborations payées"
+          : "Aucun paiement reçu",
       subColor: stats.revenue > 0 ? "text-green-400" : "text-text-muted",
       icon: TrendingUp,
       iconBg: "bg-green-500/10",
@@ -30,7 +30,7 @@ export default function StatsGrid({ stats }: { stats: Stats }) {
       value: String(stats.activeCollabs),
       sub:
         stats.activeCollabs > 0
-          ? "En production / n\u00e9gociation"
+          ? "En production / négociation"
           : "Aucune collab active",
       subColor: stats.activeCollabs > 0 ? "text-green-400" : "text-text-muted",
       icon: Users,
@@ -39,10 +39,10 @@ export default function StatsGrid({ stats }: { stats: Stats }) {
     },
     {
       label: "Paiements en attente",
-      value: `${stats.pendingAmount.toLocaleString("fr-FR")} \u20ac`,
+      value: `${stats.pendingAmount.toLocaleString("fr-FR")} €`,
       sub:
         stats.pendingAmount > 0
-          ? "Factures \u00e0 encaisser"
+          ? "Factures à encaisser"
           : "Aucun paiement en attente",
       subColor: stats.pendingAmount > 0 ? "text-yellow-400" : "text-text-muted",
       icon: Clock,
@@ -50,7 +50,7 @@ export default function StatsGrid({ stats }: { stats: Stats }) {
       iconColor: "text-yellow-400",
     },
     {
-      label: "Contenus \u00e0 rendre",
+      label: "Contenus à rendre",
       value: String(stats.upcomingCount),
       sub: stats.nextDeadline
         ? `Prochain : ${stats.nextDeadline}`

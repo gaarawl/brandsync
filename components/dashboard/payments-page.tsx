@@ -53,14 +53,14 @@ type Payment = {
 type FilterType = "all" | "paid" | "pending" | "overdue";
 
 const statusConfig: Record<string, { label: string; color: string }> = {
-  paid: { label: "Pay\u00e9", color: "bg-green-500/15 text-green-400" },
+  paid: { label: "Payé", color: "bg-green-500/15 text-green-400" },
   pending: { label: "En attente", color: "bg-yellow-500/15 text-yellow-400" },
   overdue: { label: "En retard", color: "bg-red-500/15 text-red-400" },
 };
 
 const filters: { key: FilterType; label: string }[] = [
   { key: "all", label: "Tout" },
-  { key: "paid", label: "Pay\u00e9s" },
+  { key: "paid", label: "Payés" },
   { key: "pending", label: "En attente" },
   { key: "overdue", label: "En retard" },
 ];
@@ -83,7 +83,7 @@ function getAvatarColor(name: string) {
 }
 
 function formatDate(date: Date | null) {
-  if (!date) return "\u2014";
+  if (!date) return "—";
   return new Date(date).toLocaleDateString("fr-FR", {
     day: "numeric",
     month: "short",
@@ -275,8 +275,8 @@ export default function PaymentsPage({
                     </p>
                     <p className="text-xs text-text-muted">
                       {p.collaboration
-                        ? `${p.collaboration.platform} \u00b7 ${p.collaboration.deliverables}`
-                        : "\u2014"}
+                        ? `${p.collaboration.platform} · ${p.collaboration.deliverables}`
+                        : "—"}
                     </p>
                   </div>
                 </div>
@@ -334,7 +334,7 @@ export default function PaymentsPage({
           <div className="px-5 py-12 text-center text-sm text-text-muted">
             {payments.length === 0
               ? "Aucun paiement. Ajoutez votre premier !"
-              : "Aucun paiement trouv\u00e9."}
+              : "Aucun paiement trouvé."}
           </div>
         )}
       </motion.div>

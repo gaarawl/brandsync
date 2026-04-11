@@ -64,17 +64,17 @@ const typeIcons: Record<string, typeof Send> = {
 const dayNames = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"];
 const monthNames = [
   "Janvier",
-  "F\u00e9vrier",
+  "Février",
   "Mars",
   "Avril",
   "Mai",
   "Juin",
   "Juillet",
-  "Ao\u00fbt",
+  "Août",
   "Septembre",
   "Octobre",
   "Novembre",
-  "D\u00e9cembre",
+  "Décembre",
 ];
 
 const inputClass =
@@ -164,7 +164,7 @@ export default function CalendarPage({ events }: { events: CalEvent[] }) {
   };
 
   const handleDelete = (id: string) => {
-    if (!confirm("Supprimer cet \u00e9v\u00e9nement ?")) return;
+    if (!confirm("Supprimer cet événement ?")) return;
     startTransition(() => deleteEvent(id));
   };
 
@@ -175,7 +175,7 @@ export default function CalendarPage({ events }: { events: CalEvent[] }) {
         <div>
           <h1 className="text-xl font-bold text-text-primary">Calendrier</h1>
           <p className="text-sm text-text-muted mt-1">
-            {monthEvents.length} \u00e9v\u00e9nement
+            {monthEvents.length} événement
             {monthEvents.length > 1 ? "s" : ""} en{" "}
             {monthNames[month].toLowerCase()} {year}
           </p>
@@ -185,7 +185,7 @@ export default function CalendarPage({ events }: { events: CalEvent[] }) {
           className="flex items-center gap-2 rounded-lg bg-accent px-4 py-2.5 text-sm font-medium text-bg-primary hover:bg-accent-glow transition-colors"
         >
           <Plus className="h-4 w-4" />
-          Nouvel \u00e9v\u00e9nement
+          Nouvel événement
         </button>
       </div>
 
@@ -276,10 +276,10 @@ export default function CalendarPage({ events }: { events: CalEvent[] }) {
             <h2 className="text-sm font-semibold text-text-primary">
               {selectedDay
                 ? `${selectedDay} ${monthNames[month].toLowerCase()} ${year}`
-                : "S\u00e9lectionnez un jour"}
+                : "Sélectionnez un jour"}
             </h2>
             <p className="text-xs text-text-muted mt-0.5">
-              {dayEvents.length} \u00e9v\u00e9nement
+              {dayEvents.length} événement
               {dayEvents.length > 1 ? "s" : ""}
             </p>
           </div>
@@ -337,7 +337,7 @@ export default function CalendarPage({ events }: { events: CalEvent[] }) {
               })
             ) : (
               <div className="py-8 text-center text-sm text-text-muted">
-                Rien de pr\u00e9vu ce jour.
+                Rien de prévu ce jour.
               </div>
             )}
           </div>
@@ -353,12 +353,12 @@ export default function CalendarPage({ events }: { events: CalEvent[] }) {
       >
         <div className="px-5 py-4 border-b border-border-subtle">
           <h2 className="text-sm font-semibold text-text-primary">
-            Prochains \u00e9v\u00e9nements
+            Prochains événements
           </h2>
         </div>
         {upcoming.length === 0 ? (
           <div className="px-5 py-8 text-center text-sm text-text-muted">
-            Aucun \u00e9v\u00e9nement \u00e0 venir.
+            Aucun événement à venir.
           </div>
         ) : (
           <div className="divide-y divide-border-subtle">
@@ -400,7 +400,7 @@ export default function CalendarPage({ events }: { events: CalEvent[] }) {
       <AnimatePresence>
         {showModal && (
           <EventModal
-            title="Nouvel \u00e9v\u00e9nement"
+            title="Nouvel événement"
             defaultDate={
               selectedDay
                 ? `${year}-${String(month + 1).padStart(2, "0")}-${String(selectedDay).padStart(2, "0")}`
@@ -417,7 +417,7 @@ export default function CalendarPage({ events }: { events: CalEvent[] }) {
       <AnimatePresence>
         {editEvent && (
           <EventModal
-            title="Modifier l'\u00e9v\u00e9nement"
+            title="Modifier l'événement"
             event={editEvent}
             onClose={() => setEditEvent(null)}
             onSubmit={handleUpdate}

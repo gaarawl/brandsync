@@ -53,7 +53,7 @@ type StatusFilter =
 const statusConfig: Record<string, { label: string; color: string }> = {
   lead: { label: "Nouveau lead", color: "bg-blue-500/15 text-blue-400" },
   negotiation: {
-    label: "N\u00e9gociation",
+    label: "Négociation",
     color: "bg-orange-500/15 text-orange-400",
   },
   production: {
@@ -64,17 +64,17 @@ const statusConfig: Record<string, { label: string; color: string }> = {
     label: "En attente",
     color: "bg-yellow-500/15 text-yellow-400",
   },
-  invoiced: { label: "Factur\u00e9e", color: "bg-accent/15 text-accent" },
-  paid: { label: "Pay\u00e9", color: "bg-emerald-500/15 text-emerald-400" },
+  invoiced: { label: "Facturée", color: "bg-accent/15 text-accent" },
+  paid: { label: "Payé", color: "bg-emerald-500/15 text-emerald-400" },
 };
 
 const filters: { key: StatusFilter; label: string }[] = [
   { key: "all", label: "Tout" },
   { key: "lead", label: "Leads" },
-  { key: "negotiation", label: "N\u00e9gociation" },
+  { key: "negotiation", label: "Négociation" },
   { key: "production", label: "Production" },
-  { key: "invoiced", label: "Factur\u00e9es" },
-  { key: "paid", label: "Pay\u00e9es" },
+  { key: "invoiced", label: "Facturées" },
+  { key: "paid", label: "Payées" },
 ];
 
 const avatarColors = [
@@ -98,7 +98,7 @@ const inputClass =
   "mt-1 w-full rounded-lg border border-border-subtle bg-bg-primary px-3 py-2 text-sm text-text-primary outline-none focus:border-accent/50";
 
 function formatDate(date: Date | null) {
-  if (!date) return "\u2014";
+  if (!date) return "—";
   return new Date(date).toLocaleDateString("fr-FR", {
     day: "numeric",
     month: "short",
@@ -290,8 +290,8 @@ export default function CollabListPage({
         {filtered.length === 0 && (
           <div className="px-5 py-12 text-center text-sm text-text-muted">
             {collaborations.length === 0
-              ? "Aucune collaboration. Cr\u00e9ez votre premi\u00e8re !"
-              : "Aucune collaboration trouv\u00e9e."}
+              ? "Aucune collaboration. Créez votre première !"
+              : "Aucune collaboration trouvée."}
           </div>
         )}
       </motion.div>
@@ -432,7 +432,7 @@ function CollabModal({
               name="deliverables"
               defaultValue={collab?.deliverables || ""}
               required
-              placeholder="ex: 3 vid\u00e9os TikTok"
+              placeholder="ex: 3 vidéos TikTok"
               className={inputClass}
             />
           </div>
@@ -476,7 +476,7 @@ function CollabModal({
             disabled={isPending}
             className="w-full rounded-lg bg-accent py-2.5 text-sm font-medium text-bg-primary hover:bg-accent-glow transition-colors disabled:opacity-50"
           >
-            {isPending ? "..." : collab ? "Enregistrer" : "Cr\u00e9er"}
+            {isPending ? "..." : collab ? "Enregistrer" : "Créer"}
           </button>
         </form>
       </motion.div>

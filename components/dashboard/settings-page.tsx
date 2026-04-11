@@ -47,11 +47,11 @@ export default function SettingsClient({ user }: Props) {
   const handleDeleteAccount = () => {
     if (
       !confirm(
-        "Supprimer votre compte ? Toutes vos donn\u00e9es seront perdues."
+        "Supprimer votre compte ? Toutes vos données seront perdues."
       )
     )
       return;
-    if (!confirm("\u00cates-vous vraiment s\u00fbr ? Cette action est irr\u00e9versible."))
+    if (!confirm("Êtes-vous vraiment sûr ? Cette action est irréversible."))
       return;
     startTransition(async () => {
       await deleteAccount();
@@ -72,10 +72,10 @@ export default function SettingsClient({ user }: Props) {
       {/* Header */}
       <div>
         <h1 className="text-xl font-bold text-text-primary">
-          Param\u00e8tres
+          Paramètres
         </h1>
         <p className="text-sm text-text-muted mt-1">
-          G\u00e9rez votre compte et vos pr\u00e9f\u00e9rences
+          Gérez votre compte et vos préférences
         </p>
       </div>
 
@@ -136,7 +136,7 @@ export default function SettingsClient({ user }: Props) {
               className={`${inputClass} opacity-50 cursor-not-allowed`}
             />
             <p className="text-[11px] text-text-muted mt-1">
-              L&apos;email est li\u00e9 \u00e0 votre compte Google.
+              L&apos;email est lié à votre compte Google.
             </p>
           </div>
           <button
@@ -146,7 +146,7 @@ export default function SettingsClient({ user }: Props) {
           >
             {saved ? (
               <>
-                <Check className="h-4 w-4" /> Enregistr\u00e9
+                <Check className="h-4 w-4" /> Enregistré
               </>
             ) : isPending ? (
               "..."
@@ -170,10 +170,10 @@ export default function SettingsClient({ user }: Props) {
           </div>
           <div>
             <h2 className="text-sm font-semibold text-text-primary">
-              S\u00e9curit\u00e9
+              Sécurité
             </h2>
             <p className="text-xs text-text-muted">
-              Connexion et s\u00e9curit\u00e9 du compte
+              Connexion et sécurité du compte
             </p>
           </div>
         </div>
@@ -205,7 +205,7 @@ export default function SettingsClient({ user }: Props) {
               </div>
             </div>
             <span className="rounded-full bg-green-500/15 px-2.5 py-0.5 text-[10px] font-medium text-green-400">
-              Connect\u00e9
+              Connecté
             </span>
           </div>
         </div>
@@ -216,7 +216,7 @@ export default function SettingsClient({ user }: Props) {
             className="flex items-center gap-2 rounded-lg border border-border-subtle px-4 py-2.5 text-sm text-text-secondary hover:text-text-primary hover:border-border-medium transition-colors"
           >
             <LogOut className="h-4 w-4" />
-            Se d\u00e9connecter
+            Se déconnecter
           </button>
         </div>
       </motion.div>
@@ -237,7 +237,7 @@ export default function SettingsClient({ user }: Props) {
               Votre compte
             </h2>
             <p className="text-xs text-text-muted">
-              R\u00e9sum\u00e9 de votre activit\u00e9
+              Résumé de votre activité
             </p>
           </div>
         </div>
@@ -273,9 +273,9 @@ export default function SettingsClient({ user }: Props) {
       >
         <h2 className="text-sm font-semibold text-red-400">Zone de danger</h2>
         <p className="text-xs text-text-muted">
-          La suppression de votre compte est d\u00e9finitive. Toutes vos
-          marques, collaborations, paiements et \u00e9v\u00e9nements seront
-          supprim\u00e9s.
+          La suppression de votre compte est définitive. Toutes vos
+          marques, collaborations, paiements et événements seront
+          supprimés.
         </p>
         <button
           onClick={handleDeleteAccount}

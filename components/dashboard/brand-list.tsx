@@ -118,7 +118,7 @@ export default function BrandList({ brands }: { brands: Brand[] }) {
                     {brand.name}
                   </h3>
                   <p className="text-xs text-text-muted">
-                    {brand.contact || "\u2014"}
+                    {brand.contact || "—"}
                   </p>
                 </div>
               </div>
@@ -151,9 +151,9 @@ export default function BrandList({ brands }: { brands: Brand[] }) {
               </div>
               <div className="rounded-lg bg-bg-primary p-2.5 text-center border border-border-subtle">
                 <p className="text-base font-bold text-text-primary">
-                  {brand.paymentDelay || "\u2014"}
+                  {brand.paymentDelay || "—"}
                 </p>
-                <p className="text-[10px] text-text-muted">D\u00e9lai paie.</p>
+                <p className="text-[10px] text-text-muted">Délai paie.</p>
               </div>
             </div>
 
@@ -166,7 +166,7 @@ export default function BrandList({ brands }: { brands: Brand[] }) {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-xs text-text-muted">
                 <Mail className="h-3.5 w-3.5" />
-                <span className="truncate">{brand.email || "\u2014"}</span>
+                <span className="truncate">{brand.email || "—"}</span>
               </div>
               <div className="flex items-center gap-1">
                 <button
@@ -190,8 +190,8 @@ export default function BrandList({ brands }: { brands: Brand[] }) {
       {filtered.length === 0 && (
         <div className="py-12 text-center text-sm text-text-muted">
           {brands.length === 0
-            ? "Aucune marque. Ajoutez votre premi\u00e8re marque !"
-            : "Aucune marque trouv\u00e9e."}
+            ? "Aucune marque. Ajoutez votre première marque !"
+            : "Aucune marque trouvée."}
         </div>
       )}
 

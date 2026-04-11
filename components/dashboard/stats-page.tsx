@@ -40,13 +40,13 @@ export default function StatsPageClient({
   const kpiCards = [
     {
       label: "Revenu total",
-      value: `${kpis.totalRevenue.toLocaleString("fr-FR")} \u20ac`,
+      value: `${kpis.totalRevenue.toLocaleString("fr-FR")} €`,
       icon: DollarSign,
       iconBg: "bg-green-500/10",
       iconColor: "text-green-400",
     },
     {
-      label: "Collaborations termin\u00e9es",
+      label: "Collaborations terminées",
       value: String(kpis.completedCollabs),
       icon: Users,
       iconBg: "bg-accent/10",
@@ -54,7 +54,7 @@ export default function StatsPageClient({
     },
     {
       label: "Revenu moyen / collab",
-      value: `${kpis.avgPerCollab.toLocaleString("fr-FR")} \u20ac`,
+      value: `${kpis.avgPerCollab.toLocaleString("fr-FR")} €`,
       icon: BarChart3,
       iconBg: "bg-blue-500/10",
       iconColor: "text-blue-400",
