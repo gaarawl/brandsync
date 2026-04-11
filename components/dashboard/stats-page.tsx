@@ -17,12 +17,14 @@ type Props = {
     conversionRate: number;
   };
   monthlyRevenue: { month: string; value: number }[];
+  monthlyCollabs: { month: string; count: number }[];
   platformStats: {
     platform: string;
     collabs: number;
     revenue: number;
     percentage: number;
   }[];
+  statusBreakdown: { status: string; count: number }[];
   topBrands: {
     name: string;
     revenue: number;
@@ -31,10 +33,34 @@ type Props = {
   }[];
 };
 
+const STATUS_COLORS: Record<string, string> = {
+  lead: "#71717A",
+  contacted: "#3B82F6",
+  negotiation: "#F59E0B",
+  signed: "#8B5CF6",
+  in_progress: "#6366F1",
+  invoiced: "#F97316",
+  paid: "#22C55E",
+  cancelled: "#EF4444",
+};
+
+const STATUS_LABELS: Record<string, string> = {
+  lead: "Lead",
+  contacted: "Contact\u00e9",
+  negotiation: "N\u00e9gociation",
+  signed: "Sign\u00e9",
+  in_progress: "En cours",
+  invoiced: "Factur\u00e9",
+  paid: "Pay\u00e9",
+  cancelled: "Annul\u00e9",
+};
+
 export default function StatsPageClient({
   kpis,
   monthlyRevenue,
+  monthlyCollabs,
   platformStats,
+  statusBreakdown,
   topBrands,
 }: Props) {
   const kpiCards = [
@@ -288,6 +314,147 @@ export default function StatsPageClient({
                   </div>
                 </div>
               ))}
+            </div>
+          )}
+        </motion.div>
+      </div>
+
+      {/* Donut chart + Bar chart row */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Status donut chart */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="rounded-xl border border-border-subtle bg-bg-surface p-5"
+        >
+          <h2 className="text-sm font-semibold text-text-primary mb-4">
+            Statuts des collaborations
+          </h2>
+          {statusBreakdown.length === 0 ? (
+            <div className="flex items-center justify-center h-48 text-sm text-text-muted">
+              Aucune collaboration.
+            </div>
+          ) : (
+            <div className="flex items-center gap-6">
+              <svg viewBox="0 0 120 120" className="w-40 h-40 flex-shrink-0">
+                {(() => {
+                  const total = statusBreakdown.reduce((s, b) => s + b.count, 0);
+                  let cumulative = 0;
+                  const radius = 48;
+                  const cx = 60;
+                  const cy = 60;
+                  return statusBreakdown.map((seg) => {
+                    const pct = seg.count / total;
+                    const startAngle = cumulative * 2 * Math.PI - Math.PI / 2;
+                    cumulative += pct;
+                    const endAngle = cumulative * 2 * Math.PI - Math.PI / 2;
+                    const largeArc = pct > 0.5 ? 1 : 0;
+                    const x1 = cx + radius * Math.cos(startAngle);
+                    const y1 = cy + radius * Math.sin(startAngle);
+                    const x2 = cx + radius * Math.cos(endAngle);
+                    const y2 = cy + radius * Math.sin(endAngle);
+                    if (statusBreakdown.length === 1) {
+                      return (
+                        <circle
+                          key={seg.status}
+                          cx={cx}
+                          cy={cy}
+                          r={radius}
+                          fill="none"
+                          stroke={STATUS_COLORS[seg.status] || "#8B5CF6"}
+                          strokeWidth="20"
+                        />
+                      );
+                    }
+                    return (
+                      <path
+                        key={seg.status}
+                        d={`M ${x1} ${y1} A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2} L ${cx} ${cy} Z`}
+                        fill={STATUS_COLORS[seg.status] || "#8B5CF6"}
+                        stroke="var(--bg-surface)"
+                        strokeWidth="1.5"
+                      />
+                    );
+                  });
+                })()}
+                <circle cx="60" cy="60" r="30" fill="var(--bg-surface)" />
+                <text
+                  x="60"
+                  y="57"
+                  textAnchor="middle"
+                  className="text-lg font-bold fill-text-primary"
+                >
+                  {statusBreakdown.reduce((s, b) => s + b.count, 0)}
+                </text>
+                <text
+                  x="60"
+                  y="70"
+                  textAnchor="middle"
+                  className="text-[9px] fill-text-muted"
+                >
+                  total
+                </text>
+              </svg>
+              <div className="flex flex-col gap-2 flex-1">
+                {statusBreakdown
+                  .sort((a, b) => b.count - a.count)
+                  .map((seg) => (
+                    <div key={seg.status} className="flex items-center gap-2 text-xs">
+                      <span
+                        className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                        style={{ backgroundColor: STATUS_COLORS[seg.status] || "#8B5CF6" }}
+                      />
+                      <span className="text-text-secondary flex-1">
+                        {STATUS_LABELS[seg.status] || seg.status}
+                      </span>
+                      <span className="text-text-primary font-medium">{seg.count}</span>
+                    </div>
+                  ))}
+              </div>
+            </div>
+          )}
+        </motion.div>
+
+        {/* Monthly collabs bar chart */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.35 }}
+          className="rounded-xl border border-border-subtle bg-bg-surface p-5"
+        >
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-sm font-semibold text-text-primary">
+              Nouvelles collaborations
+            </h2>
+            <span className="text-xs text-text-muted">6 derniers mois</span>
+          </div>
+          {monthlyCollabs.every((m) => m.count === 0) ? (
+            <div className="flex items-center justify-center h-48 text-sm text-text-muted">
+              Aucune collaboration sur cette p&eacute;riode.
+            </div>
+          ) : (
+            <div className="flex items-end gap-3 h-48 px-2">
+              {(() => {
+                const maxCount = Math.max(...monthlyCollabs.map((m) => m.count), 1);
+                return monthlyCollabs.map((m) => (
+                  <div key={m.month} className="flex-1 flex flex-col items-center gap-1.5">
+                    <span className="text-xs font-medium text-text-primary">
+                      {m.count > 0 ? m.count : ""}
+                    </span>
+                    <div className="w-full flex justify-center">
+                      <div
+                        className="w-8 rounded-t-md bg-gradient-to-t from-accent/60 to-accent transition-all"
+                        style={{
+                          height: `${Math.max((m.count / maxCount) * 140, m.count > 0 ? 12 : 4)}px`,
+                          opacity: m.count === 0 ? 0.2 : 1,
+                        }}
+                      />
+                    </div>
+                    <span className="text-[10px] text-text-muted">{m.month}</span>
+                  </div>
+                ));
+              })()}
             </div>
           )}
         </motion.div>

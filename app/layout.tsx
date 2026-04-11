@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import ThemeProvider from "@/components/theme-provider";
 
 export const metadata: Metadata = {
   title: "BrandSync — Le back-office des créateurs modernes",
@@ -13,9 +14,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="fr" className="antialiased">
+    <html lang="fr" className="antialiased" suppressHydrationWarning>
       <body className="bg-bg-primary text-text-primary overflow-x-hidden">
-        {children}
+        <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>
   );

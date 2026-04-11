@@ -10,22 +10,22 @@ const config: Config = {
     extend: {
       colors: {
         bg: {
-          primary: "#050505",
-          surface: "#0B0B0D",
-          elevated: "#111114",
+          primary: "var(--bg-primary)",
+          surface: "var(--bg-surface)",
+          elevated: "var(--bg-elevated)",
         },
         border: {
-          subtle: "rgba(255,255,255,0.08)",
-          medium: "rgba(255,255,255,0.12)",
+          subtle: "var(--border-subtle)",
+          medium: "var(--border-medium)",
         },
         text: {
-          primary: "#F5F5F7",
-          secondary: "#A1A1AA",
-          muted: "#71717A",
+          primary: "var(--text-primary)",
+          secondary: "var(--text-secondary)",
+          muted: "var(--text-muted)",
         },
         accent: {
-          DEFAULT: "#A78BFA",
-          glow: "#8B5CF6",
+          DEFAULT: "var(--accent)",
+          glow: "var(--accent-glow)",
           dim: "rgba(167,139,250,0.15)",
         },
       },

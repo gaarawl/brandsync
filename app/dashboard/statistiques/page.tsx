@@ -64,17 +64,17 @@ export default async function StatistiquesPage() {
   const monthlyMap = new Map<string, number>();
   const monthNames = [
     "Jan",
-    "F\u00e9v",
+    "Fév",
     "Mar",
     "Avr",
     "Mai",
     "Jun",
     "Jul",
-    "Ao\u00fb",
+    "Aoû",
     "Sep",
     "Oct",
     "Nov",
-    "D\u00e9c",
+    "Déc",
   ];
 
   // Use paid collabs and paid payments for revenue timeline
@@ -155,11 +155,34 @@ export default async function StatistiquesPage() {
 
   const maxBrandRevenue = Math.max(...topBrands.map((b) => b.revenue), 1);
 
+  // Status breakdown for donut chart
+  const statusCounts: Record<string, number> = {};
+  for (const c of collaborations) {
+    statusCounts[c.status] = (statusCounts[c.status] || 0) + 1;
+  }
+  const statusBreakdown = Object.entries(statusCounts).map(
+    ([status, count]) => ({ status, count })
+  );
+
+  // Monthly collabs count (last 6 months)
+  const monthlyCollabs: { month: string; count: number }[] = [];
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const nextMonth = new Date(now.getFullYear(), now.getMonth() - i + 1, 1);
+    const count = collaborations.filter((c) => {
+      const created = new Date(c.createdAt);
+      return created >= d && created < nextMonth;
+    }).length;
+    monthlyCollabs.push({ month: monthNames[d.getMonth()], count });
+  }
+
   return (
     <StatsPageClient
       kpis={kpis}
       monthlyRevenue={monthlyRevenue}
+      monthlyCollabs={monthlyCollabs}
       platformStats={platformStats}
+      statusBreakdown={statusBreakdown}
       topBrands={topBrands.map((b) => ({
         ...b,
         percentage: Math.round((b.revenue / maxBrandRevenue) * 100),

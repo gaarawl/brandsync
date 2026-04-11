@@ -14,9 +14,12 @@ import {
   Search,
   ChevronsLeft,
   ChevronsRight,
+  Sun,
+  Moon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
+import { useTheme } from "@/components/theme-provider";
 
 const mainNav = [
   { icon: Home, label: "Accueil", href: "/dashboard" },
@@ -39,6 +42,27 @@ interface SidebarProps {
     email?: string | null;
     image?: string | null;
   };
+}
+
+function ThemeToggle({ collapsed }: { collapsed: boolean }) {
+  const { theme, toggle } = useTheme();
+  return (
+    <button
+      onClick={toggle}
+      className={cn(
+        "flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm text-text-secondary hover:text-text-primary hover:bg-bg-elevated transition-colors w-full",
+        collapsed && "justify-center px-2"
+      )}
+      title={collapsed ? (theme === "dark" ? "Mode clair" : "Mode sombre") : undefined}
+    >
+      {theme === "dark" ? (
+        <Sun className="h-[18px] w-[18px] shrink-0" />
+      ) : (
+        <Moon className="h-[18px] w-[18px] shrink-0" />
+      )}
+      {!collapsed && (theme === "dark" ? "Mode clair" : "Mode sombre")}
+    </button>
+  );
 }
 
 export default function Sidebar({ user }: SidebarProps) {
@@ -132,8 +156,9 @@ export default function Sidebar({ user }: SidebarProps) {
       </nav>
 
       {/* Bottom nav */}
-      {!collapsed && (
-        <div className="border-t border-border-subtle px-3 py-2">
+      <div className="border-t border-border-subtle px-3 py-2 space-y-1">
+        <ThemeToggle collapsed={collapsed} />
+        {!collapsed && (
           <Link
             href="/dashboard/settings"
             className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm text-text-secondary hover:text-text-primary hover:bg-bg-elevated transition-colors"
@@ -141,8 +166,8 @@ export default function Sidebar({ user }: SidebarProps) {
             <Settings className="h-[18px] w-[18px]" />
             Paramètres
           </Link>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* User */}
       <div className="border-t border-border-subtle px-3 py-3">

@@ -11,12 +11,14 @@ import {
   Trash2,
   Pencil,
   MoreHorizontal,
+  Download,
 } from "lucide-react";
 import {
   createPayment,
   updatePayment,
   deletePayment,
 } from "@/lib/actions/payments";
+import { generateInvoicePDF } from "@/lib/generate-invoice";
 
 type Brand = {
   id: string;
@@ -141,6 +143,33 @@ export default function PaymentsPage({
   const handleDelete = (id: string) => {
     if (!confirm("Supprimer ce paiement ?")) return;
     startTransition(() => deletePayment(id));
+    setMenuOpen(null);
+  };
+
+  const handleExportPDF = (p: Payment) => {
+    const doc = generateInvoicePDF({
+      invoiceNumber: `INV-${p.id.slice(-6).toUpperCase()}`,
+      date: p.invoiceDate
+        ? new Date(p.invoiceDate).toLocaleDateString("fr-FR")
+        : new Date().toLocaleDateString("fr-FR"),
+      dueDate: p.dueDate
+        ? new Date(p.dueDate).toLocaleDateString("fr-FR")
+        : "—",
+      from: { name: "Mon entreprise", email: "" },
+      to: { name: p.brand.name, email: "" },
+      items: [
+        {
+          description: p.collaboration
+            ? p.collaboration.deliverables
+            : "Prestation",
+          platform: p.collaboration ? p.collaboration.platform : "—",
+          amount: p.amount,
+        },
+      ],
+      total: p.amount,
+      status: p.status,
+    });
+    doc.save(`facture-${p.brand.name.toLowerCase().replace(/\s+/g, "-")}.pdf`);
     setMenuOpen(null);
   };
 
@@ -314,6 +343,12 @@ export default function PaymentsPage({
                           className="flex w-full items-center gap-2 px-3 py-2 text-xs text-text-secondary hover:bg-bg-elevated"
                         >
                           <Pencil className="h-3.5 w-3.5" /> Modifier
+                        </button>
+                        <button
+                          onClick={() => handleExportPDF(p)}
+                          className="flex w-full items-center gap-2 px-3 py-2 text-xs text-text-secondary hover:bg-bg-elevated"
+                        >
+                          <Download className="h-3.5 w-3.5" /> Export PDF
                         </button>
                         <button
                           onClick={() => handleDelete(p.id)}

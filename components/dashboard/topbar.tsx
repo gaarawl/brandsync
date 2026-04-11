@@ -1,14 +1,24 @@
 "use client";
 
-import { Bell, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import Link from "next/link";
 import SignOutButton from "@/components/auth/sign-out-button";
+import NotificationsDropdown from "@/components/dashboard/notifications-dropdown";
+
+type Notification = {
+  id: string;
+  type: "deadline" | "overdue" | "upcoming";
+  title: string;
+  description: string;
+  date: string;
+};
 
 interface TopbarProps {
   userName?: string | null;
+  notifications?: Notification[];
 }
 
-export default function Topbar({ userName }: TopbarProps) {
+export default function Topbar({ userName, notifications = [] }: TopbarProps) {
   const firstName = userName?.split(" ")[0] || "Créateur";
 
   return (
@@ -23,9 +33,7 @@ export default function Topbar({ userName }: TopbarProps) {
       </div>
 
       <div className="flex items-center gap-3">
-        <button className="flex h-9 w-9 items-center justify-center rounded-lg border border-border-subtle text-text-muted hover:text-text-primary hover:bg-bg-elevated transition-colors">
-          <Bell className="h-4 w-4" />
-        </button>
+        <NotificationsDropdown notifications={notifications} />
 
         <Link
           href="/dashboard/collaborations"

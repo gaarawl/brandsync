@@ -132,9 +132,75 @@ export default async function DashboardPage() {
     brandName: p.brand.name,
   }));
 
+  // Notifications
+  const notifications: {
+    id: string;
+    type: "deadline" | "overdue" | "upcoming";
+    title: string;
+    description: string;
+    date: string;
+  }[] = [];
+
+  // Deadlines dans les 3 prochains jours
+  const threeDays = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000);
+  for (const c of collaborations) {
+    if (
+      c.deadline &&
+      new Date(c.deadline) >= now &&
+      new Date(c.deadline) <= threeDays &&
+      ["production", "validation"].includes(c.status)
+    ) {
+      notifications.push({
+        id: `deadline-${c.id}`,
+        type: "deadline",
+        title: `Deadline proche : ${c.brand.name}`,
+        description: c.deliverables,
+        date: new Date(c.deadline).toLocaleDateString("fr-FR", {
+          day: "numeric",
+          month: "short",
+        }),
+      });
+    }
+  }
+
+  // Paiements en retard
+  for (const p of payments) {
+    if (p.status === "overdue") {
+      notifications.push({
+        id: `overdue-${p.id}`,
+        type: "overdue",
+        title: `Paiement en retard : ${p.brand.name}`,
+        description: `${p.amount.toLocaleString("fr-FR")} €`,
+        date: p.dueDate
+          ? new Date(p.dueDate).toLocaleDateString("fr-FR", {
+              day: "numeric",
+              month: "short",
+            })
+          : "",
+      });
+    }
+  }
+
+  // Paiements en attente depuis longtemps (> 7 jours)
+  const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+  for (const p of payments) {
+    if (p.status === "pending" && p.dueDate && new Date(p.dueDate) < now) {
+      notifications.push({
+        id: `pending-${p.id}`,
+        type: "overdue",
+        title: `Paiement en attente dépassé : ${p.brand.name}`,
+        description: `${p.amount.toLocaleString("fr-FR")} € — échéance dépassée`,
+        date: new Date(p.dueDate).toLocaleDateString("fr-FR", {
+          day: "numeric",
+          month: "short",
+        }),
+      });
+    }
+  }
+
   return (
     <>
-      <Topbar userName={session?.user?.name} />
+      <Topbar userName={session?.user?.name} notifications={notifications} />
 
       <main className="flex-1 overflow-y-auto p-6 space-y-6">
         <StatsGrid stats={stats} />
