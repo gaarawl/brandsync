@@ -240,13 +240,16 @@ export default function PricingPage() {
                 <button
                   onClick={() => handleSubscribe(plan.name)}
                   disabled={loading}
-                  className="group relative w-full overflow-hidden rounded-xl py-3 text-sm font-medium mb-6 bg-accent text-bg-primary disabled:opacity-50 shadow-[0_0_20px_rgba(139,92,246,0.3)]"
+                  className="group relative w-full overflow-hidden rounded-xl py-3.5 text-sm font-semibold mb-6 bg-gradient-to-b from-[#a78bfa] to-[#7c3aed] text-white disabled:opacity-50 shadow-[0_0_25px_rgba(139,92,246,0.5),0_0_60px_rgba(139,92,246,0.2)]"
                 >
-                  {/* Glow pulse */}
-                  <span className="absolute inset-0 rounded-xl shadow-[inset_0_1px_0_rgba(255,255,255,0.15)]" />
-                  <span className="absolute -inset-1 rounded-xl bg-accent/20 blur-lg opacity-60 group-hover:opacity-100 transition-opacity duration-500" />
+                  {/* Inner white highlight */}
+                  <span className="absolute inset-0 rounded-xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.3)]" />
+                  {/* Outer glow - intensifies on hover */}
+                  <span className="absolute -inset-2 rounded-2xl bg-accent/25 blur-xl opacity-70 group-hover:opacity-100 group-hover:bg-accent/35 transition-all duration-500" />
+                  {/* White top glow */}
+                  <span className="absolute inset-x-4 -top-px h-px bg-gradient-to-r from-transparent via-white/60 to-transparent" />
                   {/* Shimmer sweep on hover */}
-                  <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out bg-gradient-to-r from-transparent via-white/25 to-transparent" />
+                  <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out bg-gradient-to-r from-transparent via-white/30 to-transparent" />
                   <span className="relative z-10">
                     {loading ? "Redirection..." : plan.cta}
                   </span>
