@@ -9,12 +9,15 @@ import {
   Trash2,
   Pencil,
   MoreHorizontal,
+  Upload,
+  Download,
 } from "lucide-react";
 import {
   createCollaboration,
   updateCollaboration,
   deleteCollaboration,
 } from "@/lib/actions/collaborations";
+import { exportCsv, parseCsv } from "@/lib/csv";
 
 type Brand = {
   id: string;
@@ -153,6 +156,51 @@ export default function CollabListPage({
     setMenuOpen(null);
   };
 
+  const handleExportCsv = () => {
+    const headers = ["Marque", "Plateforme", "Livrables", "Statut", "Deadline", "Montant", "Notes"];
+    const rows = collaborations.map((c) => [
+      c.brand.name,
+      c.platform,
+      c.deliverables,
+      c.status,
+      c.deadline ? new Date(c.deadline).toISOString().split("T")[0] : "",
+      String(c.amount),
+      c.notes || "",
+    ]);
+    exportCsv(headers, rows, "collaborations.csv");
+  };
+
+  const handleImportCsv = () => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = ".csv";
+    input.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+      const text = await file.text();
+      const rows = parseCsv(text);
+      let imported = 0;
+      for (const row of rows) {
+        const brandName = row["Marque"] || row["brand"] || row["Brand"];
+        const brand = brands.find((b) => b.name.toLowerCase() === brandName?.toLowerCase());
+        if (!brand) continue;
+        const fd = new FormData();
+        fd.set("brandId", brand.id);
+        fd.set("platform", row["Plateforme"] || row["platform"] || "Autre");
+        fd.set("deliverables", row["Livrables"] || row["deliverables"] || "");
+        fd.set("status", row["Statut"] || row["status"] || "lead");
+        fd.set("deadline", row["Deadline"] || row["deadline"] || "");
+        fd.set("amount", row["Montant"] || row["amount"] || "0");
+        fd.set("notes", row["Notes"] || row["notes"] || "");
+        await createCollaboration(fd);
+        imported++;
+      }
+      if (imported > 0) alert(`${imported} collaboration(s) importée(s) !`);
+      else alert("Aucune collaboration importée. Vérifiez que les noms de marques correspondent.");
+    };
+    input.click();
+  };
+
   return (
     <main className="flex-1 overflow-y-auto p-6 space-y-6">
       {/* Header */}
@@ -166,13 +214,29 @@ export default function CollabListPage({
             cours
           </p>
         </div>
-        <button
-          onClick={() => setShowModal(true)}
-          className="flex items-center gap-2 rounded-lg bg-accent px-4 py-2.5 text-sm font-medium text-bg-primary hover:bg-accent-glow transition-colors"
-        >
-          <Plus className="h-4 w-4" />
-          Nouvelle collaboration
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleImportCsv}
+            className="flex items-center gap-2 rounded-lg border border-border-subtle px-3 py-2.5 text-sm font-medium text-text-secondary hover:bg-bg-elevated transition-colors"
+          >
+            <Upload className="h-4 w-4" />
+            Importer
+          </button>
+          <button
+            onClick={handleExportCsv}
+            className="flex items-center gap-2 rounded-lg border border-border-subtle px-3 py-2.5 text-sm font-medium text-text-secondary hover:bg-bg-elevated transition-colors"
+          >
+            <Download className="h-4 w-4" />
+            Exporter
+          </button>
+          <button
+            onClick={() => setShowModal(true)}
+            className="flex items-center gap-2 rounded-lg bg-accent px-4 py-2.5 text-sm font-medium text-bg-primary hover:bg-accent-glow transition-colors"
+          >
+            <Plus className="h-4 w-4" />
+            Nouvelle collaboration
+          </button>
+        </div>
       </div>
 
       {/* Filters & search */}

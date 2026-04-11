@@ -12,6 +12,7 @@ import {
   Pencil,
   MoreHorizontal,
   Download,
+  Upload,
 } from "lucide-react";
 import {
   createPayment,
@@ -19,6 +20,7 @@ import {
   deletePayment,
 } from "@/lib/actions/payments";
 import { generateInvoicePDF } from "@/lib/generate-invoice";
+import { exportCsv, parseCsv } from "@/lib/csv";
 
 type Brand = {
   id: string;
@@ -146,6 +148,49 @@ export default function PaymentsPage({
     setMenuOpen(null);
   };
 
+  const handleExportCsv = () => {
+    const headers = ["Marque", "Montant", "Statut", "Date facture", "Date échéance", "Date paiement"];
+    const rows = payments.map((p) => [
+      p.brand.name,
+      String(p.amount),
+      p.status,
+      p.invoiceDate ? new Date(p.invoiceDate).toISOString().split("T")[0] : "",
+      p.dueDate ? new Date(p.dueDate).toISOString().split("T")[0] : "",
+      p.paidDate ? new Date(p.paidDate).toISOString().split("T")[0] : "",
+    ]);
+    exportCsv(headers, rows, "paiements.csv");
+  };
+
+  const handleImportCsv = () => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = ".csv";
+    input.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+      const text = await file.text();
+      const rows = parseCsv(text);
+      let imported = 0;
+      for (const row of rows) {
+        const brandName = row["Marque"] || row["brand"] || row["Brand"];
+        const brand = brands.find((b) => b.name.toLowerCase() === brandName?.toLowerCase());
+        if (!brand) continue;
+        const fd = new FormData();
+        fd.set("brandId", brand.id);
+        fd.set("amount", row["Montant"] || row["amount"] || "0");
+        fd.set("status", row["Statut"] || row["status"] || "pending");
+        fd.set("invoiceDate", row["Date facture"] || row["invoiceDate"] || "");
+        fd.set("dueDate", row["Date échéance"] || row["dueDate"] || "");
+        fd.set("paidDate", row["Date paiement"] || row["paidDate"] || "");
+        await createPayment(fd);
+        imported++;
+      }
+      if (imported > 0) alert(`${imported} paiement(s) importé(s) !`);
+      else alert("Aucun paiement importé. Vérifiez que les noms de marques correspondent.");
+    };
+    input.click();
+  };
+
   const handleExportPDF = (p: Payment) => {
     const doc = generateInvoicePDF({
       invoiceNumber: `INV-${p.id.slice(-6).toUpperCase()}`,
@@ -183,13 +228,29 @@ export default function PaymentsPage({
             Suivi de vos factures et paiements
           </p>
         </div>
-        <button
-          onClick={() => setShowModal(true)}
-          className="flex items-center gap-2 rounded-lg bg-accent px-4 py-2.5 text-sm font-medium text-bg-primary hover:bg-accent-glow transition-colors"
-        >
-          <Plus className="h-4 w-4" />
-          Nouveau paiement
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleImportCsv}
+            className="flex items-center gap-2 rounded-lg border border-border-subtle px-3 py-2.5 text-sm font-medium text-text-secondary hover:bg-bg-elevated transition-colors"
+          >
+            <Upload className="h-4 w-4" />
+            Importer
+          </button>
+          <button
+            onClick={handleExportCsv}
+            className="flex items-center gap-2 rounded-lg border border-border-subtle px-3 py-2.5 text-sm font-medium text-text-secondary hover:bg-bg-elevated transition-colors"
+          >
+            <Download className="h-4 w-4" />
+            Exporter
+          </button>
+          <button
+            onClick={() => setShowModal(true)}
+            className="flex items-center gap-2 rounded-lg bg-accent px-4 py-2.5 text-sm font-medium text-bg-primary hover:bg-accent-glow transition-colors"
+          >
+            <Plus className="h-4 w-4" />
+            Nouveau paiement
+          </button>
+        </div>
       </div>
 
       {/* Stats */}

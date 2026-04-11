@@ -2,8 +2,9 @@
 
 import { useState, useTransition } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Search, Mail, X, Trash2, Pencil } from "lucide-react";
+import { Plus, Search, Mail, X, Trash2, Pencil, Upload, Download } from "lucide-react";
 import { createBrand, updateBrand, deleteBrand } from "@/lib/actions/brands";
+import { exportCsv, parseCsv } from "@/lib/csv";
 
 type Brand = {
   id: string;
@@ -65,6 +66,46 @@ export default function BrandList({ brands }: { brands: Brand[] }) {
     startTransition(() => deleteBrand(id));
   };
 
+  const handleExportCsv = () => {
+    const headers = ["Nom", "Contact", "Email", "Statut", "Délai de paiement", "Notes"];
+    const rows = brands.map((b) => [
+      b.name,
+      b.contact || "",
+      b.email || "",
+      b.status,
+      b.paymentDelay || "",
+      b.notes || "",
+    ]);
+    exportCsv(headers, rows, "marques.csv");
+  };
+
+  const handleImportCsv = () => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = ".csv";
+    input.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+      const text = await file.text();
+      const rows = parseCsv(text);
+      let imported = 0;
+      for (const row of rows) {
+        const name = row["Nom"] || row["name"] || row["Name"];
+        if (!name) continue;
+        const fd = new FormData();
+        fd.set("name", name);
+        fd.set("contact", row["Contact"] || row["contact"] || "");
+        fd.set("email", row["Email"] || row["email"] || "");
+        fd.set("notes", row["Notes"] || row["notes"] || "");
+        fd.set("paymentDelay", row["Délai de paiement"] || row["paymentDelay"] || "");
+        await createBrand(fd);
+        imported++;
+      }
+      if (imported > 0) alert(`${imported} marque(s) importée(s) !`);
+    };
+    input.click();
+  };
+
   return (
     <main className="flex-1 overflow-y-auto p-6 space-y-6">
       {/* Header */}
@@ -76,13 +117,29 @@ export default function BrandList({ brands }: { brands: Brand[] }) {
             {brands.filter((b) => b.status === "Actif").length} actives
           </p>
         </div>
-        <button
-          onClick={() => setShowModal(true)}
-          className="flex items-center gap-2 rounded-lg bg-accent px-4 py-2.5 text-sm font-medium text-bg-primary hover:bg-accent-glow transition-colors"
-        >
-          <Plus className="h-4 w-4" />
-          Ajouter une marque
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleImportCsv}
+            className="flex items-center gap-2 rounded-lg border border-border-subtle px-3 py-2.5 text-sm font-medium text-text-secondary hover:bg-bg-elevated transition-colors"
+          >
+            <Upload className="h-4 w-4" />
+            Importer
+          </button>
+          <button
+            onClick={handleExportCsv}
+            className="flex items-center gap-2 rounded-lg border border-border-subtle px-3 py-2.5 text-sm font-medium text-text-secondary hover:bg-bg-elevated transition-colors"
+          >
+            <Download className="h-4 w-4" />
+            Exporter
+          </button>
+          <button
+            onClick={() => setShowModal(true)}
+            className="flex items-center gap-2 rounded-lg bg-accent px-4 py-2.5 text-sm font-medium text-bg-primary hover:bg-accent-glow transition-colors"
+          >
+            <Plus className="h-4 w-4" />
+            Ajouter une marque
+          </button>
+        </div>
       </div>
 
       {/* Search */}
