@@ -1,14 +1,17 @@
-import { auth } from "@/auth";
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
-export default auth((req) => {
-  const isLoggedIn = !!req.auth;
-  const isOnDashboard = req.nextUrl.pathname.startsWith("/dashboard");
+export function middleware(request: NextRequest) {
+  const token =
+    request.cookies.get("authjs.session-token") ||
+    request.cookies.get("__Secure-authjs.session-token");
 
-  // Redirect to login if trying to access dashboard without auth
-  if (isOnDashboard && !isLoggedIn) {
-    return Response.redirect(new URL("/login", req.nextUrl));
+  if (!token) {
+    return NextResponse.redirect(new URL("/login", request.url));
   }
-});
+
+  return NextResponse.next();
+}
 
 export const config = {
   matcher: ["/dashboard/:path*"],
