@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import {
   Check,
@@ -141,31 +141,41 @@ export default function PricingPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="flex items-center justify-center gap-3 mb-10"
+          className="flex items-center justify-center mb-10"
         >
-          <button
-            onClick={() => setBilling("monthly")}
-            className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
-              billing === "monthly"
-                ? "bg-accent/10 text-accent"
-                : "text-text-muted hover:text-text-primary"
-            }`}
-          >
-            Mensuel
-          </button>
-          <button
-            onClick={() => setBilling("yearly")}
-            className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
-              billing === "yearly"
-                ? "bg-accent/10 text-accent"
-                : "text-text-muted hover:text-text-primary"
-            }`}
-          >
-            Annuel
-            <span className="ml-2 rounded-full bg-green-500/15 text-green-400 px-2 py-0.5 text-[10px] font-medium">
-              -33%
-            </span>
-          </button>
+          <div className="relative flex items-center gap-1 rounded-xl bg-bg-surface border border-border-subtle p-1">
+            <button
+              onClick={() => setBilling("monthly")}
+              className="relative rounded-lg px-5 py-2 text-sm font-medium transition-colors z-10 text-text-primary"
+            >
+              {billing === "monthly" && (
+                <motion.div
+                  layoutId="billing-tab"
+                  className="absolute inset-0 rounded-lg bg-accent/10 border border-accent/20"
+                  transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                />
+              )}
+              <span className="relative z-10">Mensuel</span>
+            </button>
+            <button
+              onClick={() => setBilling("yearly")}
+              className="relative rounded-lg px-5 py-2 text-sm font-medium transition-colors z-10 text-text-primary"
+            >
+              {billing === "yearly" && (
+                <motion.div
+                  layoutId="billing-tab"
+                  className="absolute inset-0 rounded-lg bg-accent/10 border border-accent/20"
+                  transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                />
+              )}
+              <span className="relative z-10">
+                Annuel
+                <span className="ml-2 rounded-full bg-green-500/15 text-green-400 px-2 py-0.5 text-[10px] font-medium">
+                  -33%
+                </span>
+              </span>
+            </button>
+          </div>
         </motion.div>
 
         {/* Plans */}
@@ -196,18 +206,34 @@ export default function PricingPage() {
                   {plan.description}
                 </p>
                 <div className="mt-4 flex items-baseline gap-1">
-                  <span className="text-4xl font-bold text-text-primary">
-                    {plan.price[billing]}&euro;
-                  </span>
+                  <AnimatePresence mode="wait">
+                    <motion.span
+                      key={billing}
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 10 }}
+                      transition={{ duration: 0.2 }}
+                      className="text-4xl font-bold text-text-primary"
+                    >
+                      {plan.price[billing]}&euro;
+                    </motion.span>
+                  </AnimatePresence>
                   {plan.name !== "Free" && (
                     <span className="text-sm text-text-muted">/mois</span>
                   )}
                 </div>
-                {plan.name === "Pro" && billing === "yearly" && (
-                  <p className="text-xs text-text-muted mt-1">
-                    Factur&eacute; 79.90&euro;/an
-                  </p>
-                )}
+                <AnimatePresence>
+                  {plan.name === "Pro" && billing === "yearly" && (
+                    <motion.p
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="text-xs text-text-muted mt-1"
+                    >
+                      Factur&eacute; 79.90&euro;/an
+                    </motion.p>
+                  )}
+                </AnimatePresence>
               </div>
 
               <button
