@@ -10,9 +10,13 @@ import {
   LogOut,
   Check,
   Trash2,
+  CreditCard,
+  Sparkles,
+  ExternalLink,
 } from "lucide-react";
 import { updateProfile, deleteAccount } from "@/lib/actions/user";
 import Image from "next/image";
+import Link from "next/link";
 
 type Props = {
   user: {
@@ -21,6 +25,7 @@ type Props = {
     image: string | null;
     providers: string[];
     createdAt: string;
+    plan: string;
     stats: {
       brands: number;
       collaborations: number;
@@ -261,6 +266,83 @@ export default function SettingsClient({ user }: Props) {
             </p>
             <p className="text-xs text-text-muted mt-1">Paiements</p>
           </div>
+        </div>
+      </motion.div>
+
+      {/* Subscription */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.12 }}
+        className="rounded-xl border border-border-subtle bg-bg-surface p-6 space-y-5"
+      >
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent/10">
+            <CreditCard className="h-5 w-5 text-accent" />
+          </div>
+          <div>
+            <h2 className="text-sm font-semibold text-text-primary">
+              Abonnement
+            </h2>
+            <p className="text-xs text-text-muted">
+              G&eacute;rez votre plan et votre facturation
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between rounded-lg bg-bg-primary px-4 py-4 border border-border-subtle">
+          <div className="flex items-center gap-3">
+            <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${
+              user.plan === "pro" ? "bg-accent/15" : "bg-text-muted/10"
+            }`}>
+              <Sparkles className={`h-5 w-5 ${
+                user.plan === "pro" ? "text-accent" : "text-text-muted"
+              }`} />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <p className="text-sm font-medium text-text-primary">
+                  Plan {user.plan === "pro" ? "Pro" : "Free"}
+                </p>
+                <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${
+                  user.plan === "pro"
+                    ? "bg-accent/15 text-accent"
+                    : "bg-text-muted/15 text-text-muted"
+                }`}>
+                  {user.plan === "pro" ? "PRO" : "FREE"}
+                </span>
+              </div>
+              <p className="text-xs text-text-muted mt-0.5">
+                {user.plan === "pro"
+                  ? "200 messages IA/jour, toutes les fonctionnalit\u00E9s"
+                  : "10 messages IA/jour"}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3">
+          {user.plan === "pro" ? (
+            <button
+              onClick={async () => {
+                const res = await fetch("/api/stripe/portal", { method: "POST" });
+                const data = await res.json();
+                if (data.url) window.location.href = data.url;
+              }}
+              className="flex items-center gap-2 rounded-lg border border-border-subtle px-4 py-2.5 text-sm text-text-secondary hover:text-text-primary hover:border-border-medium transition-colors"
+            >
+              <ExternalLink className="h-4 w-4" />
+              G&eacute;rer l&apos;abonnement
+            </button>
+          ) : (
+            <Link
+              href="/pricing"
+              className="flex items-center gap-2 rounded-lg bg-accent px-4 py-2.5 text-sm font-medium text-bg-primary hover:bg-accent-glow transition-colors"
+            >
+              <Sparkles className="h-4 w-4" />
+              Passer au Pro
+            </Link>
+          )}
         </div>
       </motion.div>
 

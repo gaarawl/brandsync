@@ -26,6 +26,7 @@ export default async function SettingsPage() {
         image: user?.image || null,
         providers: user?.accounts.map((a) => a.provider) || [],
         createdAt: user?.createdAt?.toISOString() || "",
+        plan: user?.plan || "free",
         stats: {
           brands: user?._count.brands || 0,
           collaborations: user?._count.collaborations || 0,
