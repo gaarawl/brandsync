@@ -2,6 +2,7 @@ import NextAuth from "next-auth";
 import Google from "next-auth/providers/google";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/lib/prisma";
+import { sendWelcomeEmail } from "@/lib/email";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   trustHost: true,
@@ -22,6 +23,23 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         session.user.id = token.sub;
       }
       return session;
+    },
+  },
+  events: {
+    async signIn({ user, isNewUser }) {
+      if (isNewUser && user.email) {
+        try {
+          await sendWelcomeEmail(user.email, user.name || "Créateur");
+          if (user.id) {
+            await prisma.user.update({
+              where: { id: user.id },
+              data: { welcomeEmailSent: true },
+            });
+          }
+        } catch (e) {
+          console.error("Failed to send welcome email:", e);
+        }
+      }
     },
   },
 });

@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
+import { sendNewCollabEmail, sendCollabStatusEmail } from "@/lib/email";
 
 export async function getCollaborations() {
   const session = await auth();
@@ -31,7 +32,7 @@ export async function createCollaboration(formData: FormData) {
     throw new Error("Champs requis manquants");
   }
 
-  await prisma.collaboration.create({
+  const collab = await prisma.collaboration.create({
     data: {
       platform,
       deliverables,
@@ -42,7 +43,17 @@ export async function createCollaboration(formData: FormData) {
       userId: session.user.id,
       brandId,
     },
+    include: { brand: true },
   });
+
+  // Send email notification (non-blocking)
+  if (session.user.email) {
+    sendNewCollabEmail(session.user.email, {
+      brandName: collab.brand.name,
+      platform: collab.platform,
+      amount: collab.amount,
+    }).catch((e) => console.error("Email error:", e));
+  }
 
   revalidatePath("/dashboard/collaborations");
   revalidatePath("/dashboard");
@@ -59,6 +70,12 @@ export async function updateCollaboration(id: string, formData: FormData) {
   const deadline = formData.get("deadline") as string;
   const notes = formData.get("notes") as string;
 
+  // Get old status before update
+  const old = await prisma.collaboration.findUnique({
+    where: { id, userId: session.user.id },
+    include: { brand: true },
+  });
+
   await prisma.collaboration.update({
     where: { id, userId: session.user.id },
     data: {
@@ -70,6 +87,15 @@ export async function updateCollaboration(id: string, formData: FormData) {
       notes: notes || null,
     },
   });
+
+  // Send email if status changed
+  if (old && old.status !== status && session.user.email) {
+    sendCollabStatusEmail(session.user.email, {
+      brandName: old.brand.name,
+      oldStatus: old.status,
+      newStatus: status,
+    }).catch((e) => console.error("Email error:", e));
+  }
 
   revalidatePath("/dashboard/collaborations");
   revalidatePath("/dashboard");

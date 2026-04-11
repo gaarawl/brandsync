@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
+import { sendNewPaymentEmail, sendPaymentReceivedEmail } from "@/lib/email";
 
 export async function getPayments() {
   const session = await auth();
@@ -29,7 +30,7 @@ export async function createPayment(formData: FormData) {
 
   if (!brandId || !amount) throw new Error("Champs requis manquants");
 
-  await prisma.payment.create({
+  const payment = await prisma.payment.create({
     data: {
       amount,
       status,
@@ -40,7 +41,19 @@ export async function createPayment(formData: FormData) {
       brandId,
       collaborationId,
     },
+    include: { brand: true },
   });
+
+  // Send email notification (non-blocking)
+  if (session.user.email) {
+    sendNewPaymentEmail(session.user.email, {
+      brandName: payment.brand.name,
+      amount: payment.amount,
+      dueDate: payment.dueDate
+        ? payment.dueDate.toLocaleDateString("fr-FR")
+        : null,
+    }).catch((e) => console.error("Email error:", e));
+  }
 
   revalidatePath("/dashboard/paiements");
   revalidatePath("/dashboard");
@@ -56,6 +69,12 @@ export async function updatePayment(id: string, formData: FormData) {
   const dueDate = formData.get("dueDate") as string;
   const paidDate = formData.get("paidDate") as string;
 
+  // Get old status before update
+  const old = await prisma.payment.findUnique({
+    where: { id, userId: session.user.id },
+    include: { brand: true },
+  });
+
   await prisma.payment.update({
     where: { id, userId: session.user.id },
     data: {
@@ -66,6 +85,14 @@ export async function updatePayment(id: string, formData: FormData) {
       paidDate: paidDate ? new Date(paidDate) : null,
     },
   });
+
+  // Send email when payment marked as paid
+  if (old && old.status !== "paid" && status === "paid" && session.user.email) {
+    sendPaymentReceivedEmail(session.user.email, {
+      brandName: old.brand.name,
+      amount,
+    }).catch((e) => console.error("Email error:", e));
+  }
 
   revalidatePath("/dashboard/paiements");
   revalidatePath("/dashboard");
