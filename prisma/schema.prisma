@@ -18,12 +18,15 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
+  plan          String    @default("free") // free | pro
+
   accounts      Account[]
   sessions      Session[]
   brands        Brand[]
   collaborations Collaboration[]
   payments      Payment[]
   events        Event[]
+  aiUsage       AiUsage[]
 }
 
 // ── NextAuth (obligatoire) ──
@@ -63,6 +66,17 @@ model VerificationToken {
   expires    DateTime
 
   @@id([identifier, token])
+}
+
+// ── Usage IA ──
+model AiUsage {
+  id        String   @id @default(cuid())
+  date      String   // format YYYY-MM-DD
+  count     Int      @default(0)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
 }
 
 // ── Marques ──

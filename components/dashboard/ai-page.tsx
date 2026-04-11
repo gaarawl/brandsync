@@ -77,8 +77,17 @@ export default function AIChatPage({ summary }: { summary: Summary }) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [usage, setUsage] = useState({ used: 0, limit: 10, plan: "free", remaining: 10 });
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  // Fetch usage on mount
+  useEffect(() => {
+    fetch("/api/ai/usage")
+      .then((r) => r.json())
+      .then((data) => setUsage(data))
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -87,6 +96,21 @@ export default function AIChatPage({ summary }: { summary: Summary }) {
   const sendMessage = async (text?: string) => {
     const msg = text || input.trim();
     if (!msg || loading) return;
+
+    if (usage.remaining <= 0) {
+      setMessages((prev) => [
+        ...prev,
+        { role: "user", content: msg },
+        {
+          role: "assistant",
+          content: usage.plan === "free"
+            ? "Tu as atteint ta limite de 10 messages/jour sur le plan gratuit. Passe au plan Pro pour 200 messages/jour !"
+            : "Tu as atteint ta limite de messages pour aujourd'hui.",
+        },
+      ]);
+      setInput("");
+      return;
+    }
 
     const userMsg: Message = { role: "user", content: msg };
     const newMessages = [...messages, userMsg];
@@ -101,9 +125,24 @@ export default function AIChatPage({ summary }: { summary: Summary }) {
         body: JSON.stringify({ messages: newMessages }),
       });
 
+      if (res.status === 429) {
+        const data = await res.json();
+        setMessages([...newMessages, { role: "assistant", content: data.message }]);
+        setUsage((u) => ({ ...u, remaining: 0, used: u.limit }));
+        return;
+      }
+
       if (!res.ok) throw new Error("Erreur API");
       const data = await res.json();
       setMessages([...newMessages, { role: "assistant", content: data.message }]);
+      if (data.usage) {
+        setUsage({
+          used: data.usage.used,
+          limit: data.usage.limit,
+          plan: data.usage.plan,
+          remaining: Math.max(data.usage.limit - data.usage.used, 0),
+        });
+      }
     } catch {
       setMessages([
         ...newMessages,
@@ -148,8 +187,16 @@ export default function AIChatPage({ summary }: { summary: Summary }) {
               </button>
             )}
             <div className="flex items-center gap-2 rounded-lg bg-bg-elevated px-3 py-2">
-              <div className="h-2 w-2 rounded-full bg-green-400 animate-pulse" />
-              <span className="text-xs text-text-muted">En ligne</span>
+              <span className="text-xs text-text-muted">
+                {usage.remaining}/{usage.limit} messages
+              </span>
+              <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded ${
+                usage.plan === "pro"
+                  ? "bg-accent/15 text-accent"
+                  : "bg-text-muted/15 text-text-muted"
+              }`}>
+                {usage.plan === "pro" ? "PRO" : "FREE"}
+              </span>
             </div>
           </div>
         </div>
