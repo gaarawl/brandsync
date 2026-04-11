@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
+import { prisma } from "@/lib/prisma";
 import Sidebar from "@/components/dashboard/sidebar";
 
 export default async function DashboardLayout({
@@ -13,6 +14,11 @@ export default async function DashboardLayout({
     redirect("/login");
   }
 
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { plan: true },
+  });
+
   return (
     <div className="flex h-screen bg-bg-primary overflow-hidden">
       <Sidebar
@@ -20,6 +26,7 @@ export default async function DashboardLayout({
           name: session.user.name,
           email: session.user.email,
           image: session.user.image,
+          plan: user?.plan || "free",
         }}
       />
       <div className="flex-1 flex flex-col overflow-hidden">{children}</div>

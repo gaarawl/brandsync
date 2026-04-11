@@ -17,6 +17,7 @@ import {
   Sun,
   Moon,
   Bot,
+  Crown,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -43,6 +44,7 @@ interface SidebarProps {
     name?: string | null;
     email?: string | null;
     image?: string | null;
+    plan?: string;
   };
 }
 
@@ -157,8 +159,21 @@ export default function Sidebar({ user }: SidebarProps) {
         )}
       </nav>
 
-      {/* Bottom nav */}
+      {/* Upgrade / Bottom nav */}
       <div className="border-t border-border-subtle px-3 py-2 space-y-1">
+        {user.plan !== "pro" && (
+          <Link
+            href="/pricing"
+            className={cn(
+              "flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium bg-gradient-to-r from-accent/10 to-accent/5 text-accent hover:from-accent/20 hover:to-accent/10 transition-all",
+              collapsed && "justify-center px-2"
+            )}
+            title={collapsed ? "Passer au Pro" : undefined}
+          >
+            <Crown className="h-[18px] w-[18px] shrink-0" />
+            {!collapsed && "Passer au Pro"}
+          </Link>
+        )}
         <ThemeToggle collapsed={collapsed} />
         {!collapsed && (
           <Link
