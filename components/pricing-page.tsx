@@ -236,17 +236,29 @@ export default function PricingPage() {
                 </AnimatePresence>
               </div>
 
-              <button
-                onClick={() => handleSubscribe(plan.name)}
-                disabled={plan.name === "Free" || loading}
-                className={`w-full rounded-xl py-3 text-sm font-medium transition-colors mb-6 ${
-                  plan.popular
-                    ? "bg-accent text-bg-primary hover:bg-accent-glow"
-                    : "bg-bg-elevated text-text-secondary cursor-default"
-                } disabled:opacity-50`}
-              >
-                {loading && plan.popular ? "Redirection..." : plan.cta}
-              </button>
+              {plan.popular ? (
+                <button
+                  onClick={() => handleSubscribe(plan.name)}
+                  disabled={loading}
+                  className="group relative w-full overflow-hidden rounded-xl py-3 text-sm font-medium mb-6 bg-accent text-bg-primary disabled:opacity-50 shadow-[0_0_20px_rgba(139,92,246,0.3)]"
+                >
+                  {/* Glow pulse */}
+                  <span className="absolute inset-0 rounded-xl shadow-[inset_0_1px_0_rgba(255,255,255,0.15)]" />
+                  <span className="absolute -inset-1 rounded-xl bg-accent/20 blur-lg opacity-60 group-hover:opacity-100 transition-opacity duration-500" />
+                  {/* Shimmer sweep on hover */}
+                  <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out bg-gradient-to-r from-transparent via-white/25 to-transparent" />
+                  <span className="relative z-10">
+                    {loading ? "Redirection..." : plan.cta}
+                  </span>
+                </button>
+              ) : (
+                <button
+                  disabled
+                  className="w-full rounded-xl py-3 text-sm font-medium mb-6 bg-bg-elevated text-text-secondary cursor-default"
+                >
+                  {plan.cta}
+                </button>
+              )}
 
               <div className="space-y-3">
                 {plan.features.map((f) => (
