@@ -49,7 +49,6 @@ export default function Hero() {
       <div className="pointer-events-none absolute inset-0 bg-radial-top" />
       <div className="pointer-events-none absolute inset-0 bg-orb-left" />
       <div className="pointer-events-none absolute inset-0 bg-orb-right" />
-      <div className="pointer-events-none absolute inset-0 bg-noise" />
 
       <div className="relative mx-auto max-w-7xl px-6">
         {/* ── Text content ── */}
@@ -96,11 +95,11 @@ export default function Hero() {
             animate="visible"
             className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center"
           >
-            <PremiumButton variant="primary" icon={<ArrowRight className="h-4 w-4" />}>
+            <PremiumButton variant="primary" href="/signup" icon={<ArrowRight className="h-4 w-4" />}>
               Essayer gratuitement
             </PremiumButton>
-            <PremiumButton variant="secondary" icon={<Play className="h-4 w-4" />}>
-              Voir la démo
+            <PremiumButton variant="secondary" href="/login" icon={<Play className="h-4 w-4" />}>
+              Se connecter
             </PremiumButton>
           </motion.div>
 

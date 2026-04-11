@@ -26,15 +26,17 @@ export default function FinalCta() {
           <div className="flex flex-col items-center gap-4 pt-4 sm:flex-row sm:justify-center">
             <PremiumButton
               variant="primary"
+              href="/signup"
               icon={<ArrowRight className="h-4 w-4" />}
             >
               Essayer gratuitement
             </PremiumButton>
             <PremiumButton
               variant="secondary"
+              href="/login"
               icon={<Play className="h-4 w-4" />}
             >
-              Voir la démo
+              Se connecter
             </PremiumButton>
           </div>
 
