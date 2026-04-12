@@ -129,7 +129,7 @@ export default function Pricing() {
                   : "border-border-subtle bg-bg-surface"
               )}
             >
-              {plan.popular && (
+              {plan.popular && billing === "yearly" && (
                 <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-accent px-4 py-1 text-xs font-semibold text-bg-primary">
                   Le plus choisi
                 </span>
