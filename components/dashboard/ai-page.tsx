@@ -161,7 +161,7 @@ export default function AIChatPage({ summary }: { summary: Summary }) {
   };
 
   return (
-    <main className="flex-1 flex flex-col overflow-hidden">
+    <main className="flex-1 flex flex-col overflow-hidden bg-page-ai">
       {/* Header */}
       <div className="border-b border-border-subtle px-6 py-4">
         <div className="flex items-center justify-between">

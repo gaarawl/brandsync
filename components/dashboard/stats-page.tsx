@@ -123,7 +123,7 @@ export default function StatsPageClient({
     monthlyRevenue.some((m) => m.value > 0);
 
   return (
-    <main className="flex-1 overflow-y-auto p-6 space-y-6">
+    <main className="flex-1 overflow-y-auto p-6 space-y-6 bg-page-stats">
       {/* Header */}
       <div>
         <h1 className="text-xl font-bold text-text-primary">Statistiques</h1>

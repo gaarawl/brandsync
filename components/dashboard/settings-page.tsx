@@ -73,7 +73,7 @@ export default function SettingsClient({ user }: Props) {
     : "";
 
   return (
-    <main className="flex-1 overflow-y-auto p-6 space-y-6 max-w-3xl">
+    <main className="flex-1 overflow-y-auto p-6 space-y-6 max-w-3xl bg-page-settings">
       {/* Header */}
       <div>
         <h1 className="text-xl font-bold text-text-primary">
