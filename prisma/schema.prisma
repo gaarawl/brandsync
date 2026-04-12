@@ -23,6 +23,19 @@ model User {
   welcomeEmailSent Boolean   @default(false)
   usedPromotion    Boolean   @default(false)
 
+  // Media Kit
+  slug             String?   @unique
+  bio              String?
+  location         String?
+  website          String?
+  instagram        String?
+  tiktok           String?
+  youtube          String?
+  twitter          String?
+  linkedin         String?
+  rates            String?   // JSON string: [{ label, price }]
+  mediaKitPublic   Boolean   @default(false)
+
   accounts      Account[]
   sessions      Session[]
   brands        Brand[]
