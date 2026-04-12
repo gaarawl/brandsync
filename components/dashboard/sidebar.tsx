@@ -33,12 +33,6 @@ const mainNav = [
   { icon: Bot, label: "IA Assistant", href: "/dashboard/ai" },
 ];
 
-const shortcuts = [
-  { label: "UGC Factory", color: "bg-red-500" },
-  { label: "Summer Campaign", color: "bg-blue-500" },
-  { label: "Studio Vlog", color: "bg-green-500" },
-];
-
 interface SidebarProps {
   user: {
     name?: string | null;
@@ -140,25 +134,6 @@ export default function Sidebar({ user }: SidebarProps) {
           );
         })}
 
-        {/* Shortcuts */}
-        {!collapsed && (
-          <div className="pt-6">
-            <p className="px-3 text-[10px] text-text-muted uppercase tracking-wider mb-2">
-              Raccourcis
-            </p>
-            {shortcuts.map((s) => (
-              <div
-                key={s.label}
-                className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-text-secondary hover:text-text-primary hover:bg-bg-elevated transition-colors cursor-pointer"
-              >
-                <span
-                  className={cn("h-2.5 w-2.5 rounded-sm shrink-0", s.color)}
-                />
-                {s.label}
-              </div>
-            ))}
-          </div>
-        )}
       </nav>
 
       {/* Upgrade / Bottom nav */}
