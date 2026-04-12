@@ -1,8 +1,8 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
 
 * {
   margin: 0;
@@ -102,6 +102,72 @@ body {
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+  }
+
+  /* Premium card styles */
+  .card-premium {
+    background: linear-gradient(
+      145deg,
+      var(--bg-surface) 0%,
+      var(--bg-elevated) 100%
+    );
+    border: 1px solid var(--border-subtle);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2),
+      0 4px 12px rgba(0, 0, 0, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  }
+
+  .card-premium:hover {
+    border-color: var(--border-medium);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3),
+      0 8px 24px rgba(0, 0, 0, 0.15),
+      inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  }
+
+  /* Glass sidebar */
+  .sidebar-glass {
+    background: linear-gradient(
+      180deg,
+      rgba(11, 11, 13, 0.95) 0%,
+      rgba(11, 11, 13, 0.98) 100%
+    );
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+
+  [data-theme="light"] .sidebar-glass {
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.97) 0%,
+      rgba(243, 244, 246, 0.98) 100%
+    );
+  }
+
+  /* Shimmer line */
+  .shimmer-line {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .shimmer-line::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(167, 139, 250, 0.06) 50%,
+      transparent 100%
+    );
+    animation: shimmer-sweep 8s ease-in-out infinite;
+  }
+
+  @keyframes shimmer-sweep {
+    0%, 100% { left: -100%; }
+    50% { left: 100%; }
   }
 
   .bg-radial-top {

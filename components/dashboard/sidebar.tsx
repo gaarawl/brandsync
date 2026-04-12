@@ -76,15 +76,17 @@ export default function Sidebar({ user }: SidebarProps) {
   return (
     <aside
       className={cn(
-        "flex h-screen flex-col border-r border-border-subtle bg-bg-surface transition-all duration-300",
+        "flex h-screen flex-col border-r border-border-subtle sidebar-glass transition-all duration-300",
         collapsed ? "w-[68px]" : "w-60"
       )}
     >
       {/* Logo */}
       <div className="flex items-center justify-between px-4 py-5 border-b border-border-subtle">
-        <Link href="/dashboard" className="flex items-center gap-2">
-          <Sparkles className="h-5 w-5 text-accent shrink-0" />
-          {!collapsed && <span className="text-sm font-bold">BrandSync</span>}
+        <Link href="/dashboard" className="flex items-center gap-2.5">
+          <div className="relative flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-accent to-accent-glow shadow-lg shadow-accent/20">
+            <Sparkles className="h-4 w-4 text-white shrink-0" />
+          </div>
+          {!collapsed && <span className="text-sm font-bold tracking-tight">BrandSync</span>}
         </Link>
         <button
           onClick={() => setCollapsed(!collapsed)}
@@ -124,10 +126,10 @@ export default function Sidebar({ user }: SidebarProps) {
               key={item.href}
               href={item.href}
               className={cn(
-                "flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm transition-colors",
+                "flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm transition-all duration-200",
                 isActive
-                  ? "bg-accent/10 text-accent font-medium"
-                  : "text-text-secondary hover:text-text-primary hover:bg-bg-elevated",
+                  ? "bg-accent/10 text-accent font-medium shadow-sm shadow-accent/5 border border-accent/10"
+                  : "text-text-secondary hover:text-text-primary hover:bg-bg-elevated border border-transparent",
                 collapsed && "justify-center px-2"
               )}
               title={collapsed ? item.label : undefined}
@@ -165,7 +167,7 @@ export default function Sidebar({ user }: SidebarProps) {
           <Link
             href="/pricing"
             className={cn(
-              "flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium bg-gradient-to-r from-accent/10 to-accent/5 text-accent hover:from-accent/20 hover:to-accent/10 transition-all",
+              "flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium bg-gradient-to-r from-accent/15 via-accent/10 to-purple-600/10 text-accent border border-accent/15 hover:border-accent/30 hover:shadow-md hover:shadow-accent/10 transition-all duration-300",
               collapsed && "justify-center px-2"
             )}
             title={collapsed ? "Passer au Pro" : undefined}
@@ -190,7 +192,7 @@ export default function Sidebar({ user }: SidebarProps) {
       <div className="border-t border-border-subtle px-3 py-3">
         <div
           className={cn(
-            "flex items-center gap-2.5 rounded-lg px-2 py-2",
+            "flex items-center gap-2.5 rounded-lg px-2 py-2 hover:bg-bg-elevated/50 transition-colors",
             collapsed && "justify-center"
           )}
         >
@@ -198,10 +200,10 @@ export default function Sidebar({ user }: SidebarProps) {
             <img
               src={user.image}
               alt=""
-              className="h-8 w-8 rounded-full shrink-0"
+              className="h-8 w-8 rounded-full shrink-0 ring-2 ring-border-subtle"
             />
           ) : (
-            <div className="h-8 w-8 rounded-full bg-gradient-to-br from-accent to-accent-glow shrink-0" />
+            <div className="h-8 w-8 rounded-full bg-gradient-to-br from-accent to-accent-glow shrink-0 ring-2 ring-accent/20" />
           )}
           {!collapsed && (
             <div className="min-w-0">

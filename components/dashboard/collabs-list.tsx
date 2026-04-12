@@ -38,10 +38,10 @@ export default function CollabsList({ collabs }: { collabs: CollabItem[] }) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.2, duration: 0.4 }}
-      className="rounded-xl border border-border-subtle bg-bg-surface"
+      className="card-premium rounded-xl shimmer-line"
     >
       <div className="flex items-center justify-between px-5 py-4 border-b border-border-subtle">
-        <h2 className="text-sm font-semibold text-text-primary">
+        <h2 className="text-sm font-semibold text-text-primary tracking-tight">
           Collaborations en cours
         </h2>
         <Link
@@ -65,8 +65,10 @@ export default function CollabsList({ collabs }: { collabs: CollabItem[] }) {
             >
               <div className="flex items-center gap-3 min-w-0">
                 <div
-                  className={`h-9 w-9 rounded-full shrink-0 ${getAvatarColor(c.brandName)}`}
-                />
+                  className={`h-9 w-9 rounded-lg shrink-0 ${getAvatarColor(c.brandName)} flex items-center justify-center text-xs font-bold text-white/80`}
+                >
+                  {c.brandName.charAt(0).toUpperCase()}
+                </div>
                 <div className="min-w-0">
                   <p className="text-sm font-medium text-text-primary truncate">
                     {c.brand}

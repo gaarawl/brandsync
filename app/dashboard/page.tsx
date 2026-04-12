@@ -202,7 +202,7 @@ export default async function DashboardPage() {
     <>
       <Topbar userName={session?.user?.name} notifications={notifications} />
 
-      <main className="flex-1 overflow-y-auto p-6 space-y-6">
+      <main className="flex-1 overflow-y-auto p-6 space-y-6 bg-radial-top">
         <StatsGrid stats={stats} />
 
         <div className="grid gap-6 lg:grid-cols-5">

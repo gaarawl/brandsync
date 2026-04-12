@@ -39,10 +39,10 @@ export default function PaymentsWidget({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.35, duration: 0.4 }}
-      className="rounded-xl border border-border-subtle bg-bg-surface"
+      className="card-premium rounded-xl"
     >
       <div className="flex items-center justify-between px-5 py-4 border-b border-border-subtle">
-        <h2 className="text-sm font-semibold text-text-primary">
+        <h2 className="text-sm font-semibold text-text-primary tracking-tight">
           Paiements r&eacute;cents
         </h2>
         <Link
@@ -66,8 +66,10 @@ export default function PaymentsWidget({
             >
               <div className="flex items-center gap-3">
                 <div
-                  className={`h-8 w-8 rounded-full shrink-0 ${getAvatarColor(p.brandName)}`}
-                />
+                  className={`h-8 w-8 rounded-lg shrink-0 ${getAvatarColor(p.brandName)} flex items-center justify-center text-xs font-bold text-white/80`}
+                >
+                  {p.brandName.charAt(0).toUpperCase()}
+                </div>
                 <span className="text-sm text-text-primary">{p.brand}</span>
               </div>
               <div className="flex items-center gap-3">

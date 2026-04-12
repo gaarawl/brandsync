@@ -21,10 +21,10 @@ interface Plan {
 const plans: Plan[] = [
   {
     name: "Free",
-    price: { monthly: "0\u20AC", yearly: "0\u20AC" },
+    price: { monthly: "0€", yearly: "0€" },
     period: "",
     description:
-      "Pour d\u00E9couvrir la plateforme et structurer vos premi\u00E8res collaborations.",
+      "Pour découvrir la plateforme et structurer vos premières collaborations.",
     features: [
       { text: "Gestion des marques", included: true },
       { text: "Gestion des collaborations", included: true },
@@ -33,7 +33,7 @@ const plans: Plan[] = [
       { text: "10 messages IA / jour", included: true },
       { text: "Statistiques de base", included: true },
       { text: "200 messages IA / jour", included: false },
-      { text: "Statistiques avanc\u00E9es", included: false },
+      { text: "Statistiques avancées", included: false },
       { text: "Support prioritaire", included: false },
     ],
     cta: "Commencer gratuitement",
@@ -41,22 +41,22 @@ const plans: Plan[] = [
   },
   {
     name: "Pro",
-    price: { monthly: "9.99\u20AC", yearly: "6.66\u20AC" },
+    price: { monthly: "9.99€", yearly: "6.66€" },
     period: "/mois",
     description:
-      "Pour les cr\u00E9ateurs qui veulent un vrai cockpit business au quotidien.",
+      "Pour les créateurs qui veulent un vrai cockpit business au quotidien.",
     features: [
       { text: "Gestion des marques", included: true },
       { text: "Gestion des collaborations", included: true },
       { text: "Calendrier", included: true },
       { text: "Export PDF & CSV", included: true },
       { text: "200 messages IA / jour", included: true },
-      { text: "Statistiques avanc\u00E9es", included: true },
-      { text: "Assistant IA avanc\u00E9", included: true },
+      { text: "Statistiques avancées", included: true },
+      { text: "Assistant IA avancé", included: true },
       { text: "Support prioritaire", included: true },
-      { text: "Nouveaut\u00E9s en avant-premi\u00E8re", included: true },
+      { text: "Nouveautés en avant-première", included: true },
     ],
-    cta: "Passer \u00E0 Pro",
+    cta: "Passer à Pro",
     href: "/pricing",
     popular: true,
   },
@@ -73,8 +73,8 @@ export default function Pricing() {
       <div className="pointer-events-none absolute inset-0 bg-radial-center" />
       <div className="relative mx-auto max-w-7xl px-6">
         <SectionHeading
-          title="Des plans pens\u00E9s pour les cr\u00E9ateurs"
-          description="Commencez gratuitement, passez au Pro quand vous \u00EAtes pr\u00EAt."
+          title="Des plans pensés pour les créateurs"
+          description="Commencez gratuitement, passez au Pro quand vous êtes prêt."
         />
 
         {/* Billing toggle */}
