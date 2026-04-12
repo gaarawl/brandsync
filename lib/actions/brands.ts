@@ -2,19 +2,25 @@
 
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
+import { unstable_cache } from "next/cache";
 
 export async function getBrands() {
   const session = await auth();
   if (!session?.user?.id) return [];
 
-  return prisma.brand.findMany({
-    where: { userId: session.user.id },
-    include: {
-      _count: { select: { collaborations: true, payments: true } },
-    },
-    orderBy: { createdAt: "desc" },
-  });
+  return unstable_cache(
+    async () =>
+      prisma.brand.findMany({
+        where: { userId: session!.user!.id },
+        include: {
+          _count: { select: { collaborations: true, payments: true } },
+        },
+        orderBy: { createdAt: "desc" },
+      }),
+    [`brands-${session.user.id}`],
+    { revalidate: 120, tags: ["brands"] }
+  )();
 }
 
 export async function createBrand(formData: FormData) {
@@ -40,6 +46,7 @@ export async function createBrand(formData: FormData) {
     },
   });
 
+  revalidateTag("brands");
   revalidatePath("/dashboard/marques");
   revalidatePath("/dashboard");
 }
@@ -67,6 +74,7 @@ export async function updateBrand(id: string, formData: FormData) {
     },
   });
 
+  revalidateTag("brands");
   revalidatePath("/dashboard/marques");
   revalidatePath("/dashboard");
 }
@@ -79,6 +87,7 @@ export async function deleteBrand(id: string) {
     where: { id, userId: session.user.id },
   });
 
+  revalidateTag("brands");
   revalidatePath("/dashboard/marques");
   revalidatePath("/dashboard");
 }

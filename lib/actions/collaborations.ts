@@ -2,18 +2,24 @@
 
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
+import { unstable_cache } from "next/cache";
 import { sendNewCollabEmail, sendCollabStatusEmail } from "@/lib/email";
 
 export async function getCollaborations() {
   const session = await auth();
   if (!session?.user?.id) return [];
 
-  return prisma.collaboration.findMany({
-    where: { userId: session.user.id },
-    include: { brand: true },
-    orderBy: { createdAt: "desc" },
-  });
+  return unstable_cache(
+    async () =>
+      prisma.collaboration.findMany({
+        where: { userId: session!.user!.id },
+        include: { brand: true },
+        orderBy: { createdAt: "desc" },
+      }),
+    [`collabs-${session.user.id}`],
+    { revalidate: 120, tags: ["collaborations"] }
+  )();
 }
 
 export async function createCollaboration(formData: FormData) {
@@ -55,6 +61,7 @@ export async function createCollaboration(formData: FormData) {
     }).catch((e) => console.error("Email error:", e));
   }
 
+  revalidateTag("collaborations");
   revalidatePath("/dashboard/collaborations");
   revalidatePath("/dashboard");
 }
@@ -97,6 +104,7 @@ export async function updateCollaboration(id: string, formData: FormData) {
     }).catch((e) => console.error("Email error:", e));
   }
 
+  revalidateTag("collaborations");
   revalidatePath("/dashboard/collaborations");
   revalidatePath("/dashboard");
 }
@@ -109,6 +117,7 @@ export async function deleteCollaboration(id: string) {
     where: { id, userId: session.user.id },
   });
 
+  revalidateTag("collaborations");
   revalidatePath("/dashboard/collaborations");
   revalidatePath("/dashboard");
 }

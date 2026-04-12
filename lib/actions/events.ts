@@ -2,16 +2,22 @@
 
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
+import { unstable_cache } from "next/cache";
 
 export async function getEvents() {
   const session = await auth();
   if (!session?.user?.id) return [];
 
-  return prisma.event.findMany({
-    where: { userId: session.user.id },
-    orderBy: { date: "asc" },
-  });
+  return unstable_cache(
+    async () =>
+      prisma.event.findMany({
+        where: { userId: session!.user!.id },
+        orderBy: { date: "asc" },
+      }),
+    [`events-${session.user.id}`],
+    { revalidate: 120, tags: ["events"] }
+  )();
 }
 
 export async function createEvent(formData: FormData) {
@@ -35,6 +41,7 @@ export async function createEvent(formData: FormData) {
     },
   });
 
+  revalidateTag("events");
   revalidatePath("/dashboard/calendrier");
   revalidatePath("/dashboard");
 }
@@ -58,6 +65,7 @@ export async function updateEvent(id: string, formData: FormData) {
     },
   });
 
+  revalidateTag("events");
   revalidatePath("/dashboard/calendrier");
   revalidatePath("/dashboard");
 }
@@ -70,6 +78,7 @@ export async function deleteEvent(id: string) {
     where: { id, userId: session.user.id },
   });
 
+  revalidateTag("events");
   revalidatePath("/dashboard/calendrier");
   revalidatePath("/dashboard");
 }

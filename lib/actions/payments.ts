@@ -2,18 +2,24 @@
 
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
+import { unstable_cache } from "next/cache";
 import { sendNewPaymentEmail, sendPaymentReceivedEmail } from "@/lib/email";
 
 export async function getPayments() {
   const session = await auth();
   if (!session?.user?.id) return [];
 
-  return prisma.payment.findMany({
-    where: { userId: session.user.id },
-    include: { brand: true, collaboration: true },
-    orderBy: { createdAt: "desc" },
-  });
+  return unstable_cache(
+    async () =>
+      prisma.payment.findMany({
+        where: { userId: session!.user!.id },
+        include: { brand: true, collaboration: true },
+        orderBy: { createdAt: "desc" },
+      }),
+    [`payments-${session.user.id}`],
+    { revalidate: 120, tags: ["payments"] }
+  )();
 }
 
 export async function createPayment(formData: FormData) {
@@ -55,6 +61,7 @@ export async function createPayment(formData: FormData) {
     }).catch((e) => console.error("Email error:", e));
   }
 
+  revalidateTag("payments");
   revalidatePath("/dashboard/paiements");
   revalidatePath("/dashboard");
 }
@@ -94,6 +101,7 @@ export async function updatePayment(id: string, formData: FormData) {
     }).catch((e) => console.error("Email error:", e));
   }
 
+  revalidateTag("payments");
   revalidatePath("/dashboard/paiements");
   revalidatePath("/dashboard");
 }
@@ -106,6 +114,7 @@ export async function deletePayment(id: string) {
     where: { id, userId: session.user.id },
   });
 
+  revalidateTag("payments");
   revalidatePath("/dashboard/paiements");
   revalidatePath("/dashboard");
 }

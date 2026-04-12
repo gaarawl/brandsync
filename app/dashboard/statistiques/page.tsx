@@ -1,34 +1,21 @@
-import { auth } from "@/auth";
-import { prisma } from "@/lib/prisma";
+import { getCollaborations } from "@/lib/actions/collaborations";
+import { getPayments } from "@/lib/actions/payments";
+import { getBrands } from "@/lib/actions/brands";
 import StatsPageClient from "@/components/dashboard/stats-page";
 
 export default async function StatistiquesPage() {
-  const session = await auth();
-  const userId = session?.user?.id;
-
-  const [collaborations, payments, brands] = await Promise.all([
-    userId
-      ? prisma.collaboration.findMany({
-          where: { userId },
-          include: { brand: true },
-        })
-      : [],
-    userId
-      ? prisma.payment.findMany({
-          where: { userId },
-          include: { brand: true },
-        })
-      : [],
-    userId
-      ? prisma.brand.findMany({
-          where: { userId },
-          include: {
-            collaborations: true,
-            payments: true,
-          },
-        })
-      : [],
+  const [collaborations, payments, brandsRaw] = await Promise.all([
+    getCollaborations(),
+    getPayments(),
+    getBrands(),
   ]);
+
+  // Build brand stats from collaborations and payments
+  const brands = brandsRaw.map((b) => ({
+    ...b,
+    collaborations: collaborations.filter((c) => c.brand.name === b.name),
+    payments: payments.filter((p) => p.brand.name === b.name),
+  }));
 
   // KPIs
   const totalRevenue =

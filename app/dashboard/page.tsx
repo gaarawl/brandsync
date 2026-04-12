@@ -1,5 +1,7 @@
 import { auth } from "@/auth";
-import { prisma } from "@/lib/prisma";
+import { getCollaborations } from "@/lib/actions/collaborations";
+import { getPayments } from "@/lib/actions/payments";
+import { getBrands } from "@/lib/actions/brands";
 import Topbar from "@/components/dashboard/topbar";
 import StatsGrid from "@/components/dashboard/stats-grid";
 import RevenueChart from "@/components/dashboard/revenue-chart";
@@ -10,42 +12,18 @@ import ActivityFeed from "@/components/dashboard/activity-feed";
 
 export default async function DashboardPage() {
   const session = await auth();
-  const userId = session?.user?.id;
 
   const now = new Date();
   const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
   const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
 
-  const [collaborations, allPayments, brands, emailsSent] = await Promise.all([
-    userId
-      ? prisma.collaboration.findMany({
-          where: { userId },
-          include: { brand: true },
-          orderBy: { createdAt: "desc" },
-        })
-      : [],
-    userId
-      ? prisma.payment.findMany({
-          where: { userId },
-          include: { brand: true },
-          orderBy: { createdAt: "desc" },
-        })
-      : [],
-    userId
-      ? prisma.brand.findMany({
-          where: { userId },
-          select: { id: true },
-        })
-      : [],
-    userId
-      ? prisma.emailRecipient.count({
-          where: {
-            campaign: { userId },
-            status: "sent",
-          },
-        })
-      : 0,
+  const [collaborations, allPayments, brands] = await Promise.all([
+    getCollaborations(),
+    getPayments(),
+    getBrands(),
   ]);
+
+  const emailsSent = 0;
 
   // ── Stats ──
   const activeCollabs = collaborations.filter((c) =>

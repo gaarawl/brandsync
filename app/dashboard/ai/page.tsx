@@ -1,43 +1,16 @@
 import { auth } from "@/auth";
-import { prisma } from "@/lib/prisma";
+import { getBrands } from "@/lib/actions/brands";
+import { getCollaborations } from "@/lib/actions/collaborations";
+import { getPayments } from "@/lib/actions/payments";
 import AIChatPage from "@/components/dashboard/ai-page";
 
 export default async function AIPage() {
   const session = await auth();
-  const userId = session?.user?.id;
 
   const [brands, collaborations, payments] = await Promise.all([
-    userId
-      ? prisma.brand.findMany({
-          where: { userId },
-          select: { name: true, status: true, contact: true, email: true },
-        })
-      : [],
-    userId
-      ? prisma.collaboration.findMany({
-          where: { userId },
-          select: {
-            platform: true,
-            status: true,
-            amount: true,
-            deliverables: true,
-            deadline: true,
-            brand: { select: { name: true } },
-          },
-        })
-      : [],
-    userId
-      ? prisma.payment.findMany({
-          where: { userId },
-          select: {
-            amount: true,
-            status: true,
-            dueDate: true,
-            paidDate: true,
-            brand: { select: { name: true } },
-          },
-        })
-      : [],
+    getBrands(),
+    getCollaborations(),
+    getPayments(),
   ]);
 
   const totalRevenue = payments
