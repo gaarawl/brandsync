@@ -21,6 +21,7 @@ model User {
   plan             String    @default("free") // free | pro
   stripeCustomerId String?   @unique
   welcomeEmailSent Boolean   @default(false)
+  usedPromotion    Boolean   @default(false)
 
   accounts      Account[]
   sessions      Session[]

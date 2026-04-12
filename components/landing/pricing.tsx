@@ -139,7 +139,7 @@ export default function Pricing() {
                 <h3 className="text-lg font-semibold text-text-primary">
                   {plan.name}
                 </h3>
-                <div className="mt-3 flex items-baseline gap-1">
+                <div className="mt-3 flex items-baseline gap-2">
                   <AnimatePresence mode="wait">
                     <motion.span
                       key={billing}
@@ -157,8 +157,23 @@ export default function Pricing() {
                       {plan.period}
                     </span>
                   )}
+                  {plan.popular && billing === "monthly" && (
+                    <span className="rounded-full bg-green-500/15 text-green-400 px-2.5 py-0.5 text-[10px] font-semibold">
+                      -50% le 1er mois
+                    </span>
+                  )}
                 </div>
                 <AnimatePresence>
+                  {plan.popular && billing === "monthly" && (
+                    <motion.p
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="text-xs text-green-400/80 mt-1"
+                    >
+                      4.99&euro; le premier mois, puis 9.99&euro;/mois
+                    </motion.p>
+                  )}
                   {plan.popular && billing === "yearly" && (
                     <motion.p
                       initial={{ opacity: 0, height: 0 }}

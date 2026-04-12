@@ -3,10 +3,13 @@ import { prisma } from "@/lib/prisma";
 import { getStripe } from "@/lib/stripe";
 import { NextRequest, NextResponse } from "next/server";
 
+const MONTHLY_PRICE_ID =
+  process.env.STRIPE_PRO_MONTHLY_PRICE_ID || "price_1TL3RuLVSEf30cSA5RBI6eKD";
+
 export async function POST(req: NextRequest) {
   const session = await auth();
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "Non autoris\u00E9" }, { status: 401 });
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
   }
 
   const { priceId } = await req.json();
@@ -31,15 +34,49 @@ export async function POST(req: NextRequest) {
 
   const origin = req.headers.get("origin") || "http://localhost:3000";
 
+  // Check if user is eligible for -50% first month promo (monthly only)
+  const isMonthly = priceId === MONTHLY_PRICE_ID;
+  const eligibleForPromo = isMonthly && !user?.usedPromotion;
+
+  // Create or get the 50% off coupon
+  let couponId: string | undefined;
+  if (eligibleForPromo) {
+    const couponName = "WELCOME50";
+    const coupons = await getStripe().coupons.list({ limit: 100 });
+    const existing = coupons.data.find((c) => c.name === couponName);
+
+    if (existing) {
+      couponId = existing.id;
+    } else {
+      const coupon = await getStripe().coupons.create({
+        name: couponName,
+        percent_off: 50,
+        duration: "once",
+      });
+      couponId = coupon.id;
+    }
+  }
+
   const checkoutSession = await getStripe().checkout.sessions.create({
     customer: customerId,
     mode: "subscription",
     payment_method_types: ["card"],
     line_items: [{ price: priceId, quantity: 1 }],
+    ...(couponId && {
+      discounts: [{ coupon: couponId }],
+    }),
     success_url: `${origin}/dashboard/settings?billing=success`,
     cancel_url: `${origin}/pricing?billing=cancelled`,
     metadata: { userId },
   });
+
+  // Mark promo as used
+  if (eligibleForPromo) {
+    await prisma.user.update({
+      where: { id: userId },
+      data: { usedPromotion: true },
+    });
+  }
 
   return NextResponse.json({ url: checkoutSession.url });
 }
