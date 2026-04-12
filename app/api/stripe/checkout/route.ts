@@ -5,6 +5,8 @@ import { NextRequest, NextResponse } from "next/server";
 
 const MONTHLY_PRICE_ID =
   process.env.STRIPE_PRO_MONTHLY_PRICE_ID || "price_1TL3RuLVSEf30cSA5RBI6eKD";
+const YEARLY_PRICE_ID =
+  process.env.STRIPE_PRO_YEARLY_PRICE_ID || "price_1TL3RuLVSEf30cSAxbkyUNnN";
 
 export async function POST(req: NextRequest) {
   const session = await auth();
@@ -34,14 +36,17 @@ export async function POST(req: NextRequest) {
 
   const origin = req.headers.get("origin") || "http://localhost:3000";
 
-  // Check if user is eligible for -50% first month promo (monthly only)
+  // Check if user is eligible for first-time promo
   const isMonthly = priceId === MONTHLY_PRICE_ID;
-  const eligibleForPromo = isMonthly && !user?.usedPromotion;
+  const isYearly = priceId === YEARLY_PRICE_ID;
+  const eligibleForPromo = (isMonthly || isYearly) && !user?.usedPromotion;
 
-  // Create or get the 50% off coupon
+  // Create or get the appropriate coupon
   let couponId: string | undefined;
   if (eligibleForPromo) {
-    const couponName = "WELCOME50";
+    const couponName = isMonthly ? "WELCOME50" : "WELCOME33";
+    const percentOff = isMonthly ? 50 : 33;
+
     const coupons = await getStripe().coupons.list({ limit: 100 });
     const existing = coupons.data.find((c) => c.name === couponName);
 
@@ -50,7 +55,7 @@ export async function POST(req: NextRequest) {
     } else {
       const coupon = await getStripe().coupons.create({
         name: couponName,
-        percent_off: 50,
+        percent_off: percentOff,
         duration: "once",
       });
       couponId = coupon.id;

@@ -226,6 +226,11 @@ export default function PricingPage() {
                       -50% le 1er mois
                     </span>
                   )}
+                  {plan.name === "Pro" && billing === "yearly" && (
+                    <span className="rounded-full bg-green-500/15 text-green-400 px-2.5 py-0.5 text-[10px] font-semibold">
+                      -33% la 1re année
+                    </span>
+                  )}
                 </div>
                 <AnimatePresence>
                   {plan.name === "Pro" && billing === "monthly" && (
@@ -243,9 +248,9 @@ export default function PricingPage() {
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: "auto" }}
                       exit={{ opacity: 0, height: 0 }}
-                      className="text-xs text-text-muted mt-1"
+                      className="text-xs text-green-400/80 mt-1"
                     >
-                      Factur&eacute; 79.90&euro;/an
+                      53.53&euro; la 1&egrave;re ann&eacute;e (-33%), puis 79.90&euro;/an
                     </motion.p>
                   )}
                 </AnimatePresence>
