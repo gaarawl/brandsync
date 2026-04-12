@@ -1,14 +1,17 @@
 "use client";
 
-import { TrendingUp, Users, Clock, FileText } from "lucide-react";
+import { TrendingUp, Users, Clock, FileText, ArrowUp, ArrowDown, Mail, Building2 } from "lucide-react";
 import { motion } from "framer-motion";
 
 type Stats = {
   revenue: number;
+  revenueGrowth: number;
   activeCollabs: number;
   pendingAmount: number;
   upcomingCount: number;
   nextDeadline: string | null;
+  brandsCount: number;
+  emailsSent: number;
 };
 
 export default function StatsGrid({ stats }: { stats: Stats }) {
@@ -17,13 +20,23 @@ export default function StatsGrid({ stats }: { stats: Stats }) {
       label: "Revenus (total)",
       value: `${stats.revenue.toLocaleString("fr-FR")} €`,
       sub:
-        stats.revenue > 0
+        stats.revenueGrowth !== 0
+          ? `${stats.revenueGrowth > 0 ? "+" : ""}${stats.revenueGrowth}% vs mois dernier`
+          : stats.revenue > 0
           ? "Collaborations payées"
           : "Aucun paiement reçu",
-      subColor: stats.revenue > 0 ? "text-green-400" : "text-text-muted",
+      subColor:
+        stats.revenueGrowth > 0
+          ? "text-green-400"
+          : stats.revenueGrowth < 0
+          ? "text-red-400"
+          : stats.revenue > 0
+          ? "text-green-400"
+          : "text-text-muted",
       icon: TrendingUp,
       iconBg: "bg-green-500/10",
       iconColor: "text-green-400",
+      trend: stats.revenueGrowth,
     },
     {
       label: "Collabs en cours",
@@ -32,7 +45,7 @@ export default function StatsGrid({ stats }: { stats: Stats }) {
         stats.activeCollabs > 0
           ? "En production / négociation"
           : "Aucune collab active",
-      subColor: stats.activeCollabs > 0 ? "text-green-400" : "text-text-muted",
+      subColor: stats.activeCollabs > 0 ? "text-accent" : "text-text-muted",
       icon: Users,
       iconBg: "bg-accent/10",
       iconColor: "text-accent",
@@ -50,13 +63,14 @@ export default function StatsGrid({ stats }: { stats: Stats }) {
       iconColor: "text-yellow-400",
     },
     {
-      label: "Contenus à rendre",
-      value: String(stats.upcomingCount),
-      sub: stats.nextDeadline
-        ? `Prochain : ${stats.nextDeadline}`
-        : "Aucune deadline",
-      subColor: "text-text-muted",
-      icon: FileText,
+      label: "Marques partenaires",
+      value: String(stats.brandsCount),
+      sub:
+        stats.brandsCount > 0
+          ? `${stats.emailsSent} email(s) envoyé(s)`
+          : "Ajoute ta première marque",
+      subColor: stats.brandsCount > 0 ? "text-blue-400" : "text-text-muted",
+      icon: Building2,
       iconBg: "bg-blue-500/10",
       iconColor: "text-blue-400",
     },
@@ -80,7 +94,22 @@ export default function StatsGrid({ stats }: { stats: Stats }) {
               <p className="mt-2 text-2xl font-bold text-text-primary tracking-tight">
                 {stat.value}
               </p>
-              <p className={`mt-1.5 text-xs ${stat.subColor}`}>{stat.sub}</p>
+              <div className="flex items-center gap-1.5 mt-1.5">
+                {"trend" in stat && stat.trend !== undefined && stat.trend !== 0 && (
+                  <span
+                    className={`flex items-center ${
+                      stat.trend > 0 ? "text-green-400" : "text-red-400"
+                    }`}
+                  >
+                    {stat.trend > 0 ? (
+                      <ArrowUp className="h-3 w-3" />
+                    ) : (
+                      <ArrowDown className="h-3 w-3" />
+                    )}
+                  </span>
+                )}
+                <p className={`text-xs ${stat.subColor}`}>{stat.sub}</p>
+              </div>
             </div>
             <div
               className={`flex h-11 w-11 items-center justify-center rounded-xl ${stat.iconBg} group-hover:scale-110 transition-transform duration-300`}

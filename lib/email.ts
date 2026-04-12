@@ -160,6 +160,25 @@ export async function sendDeadlineReminderEmail(
   });
 }
 
+// ─── Campaign email (envoyé par le créateur via BrandSync) ─────────
+export async function sendCampaignEmail(
+  to: string,
+  data: { subject: string; body: string; userName: string }
+) {
+  const result = await getResend().emails.send({
+    from: FROM,
+    to,
+    subject: data.subject,
+    html: campaignLayout(data.body, data.userName),
+  });
+
+  if (result.error) {
+    throw new Error(result.error.message || "Erreur Resend");
+  }
+
+  return result;
+}
+
 // ─── HTML helpers ───────────────────────────────────────────────────
 function baseUrl() {
   return process.env.NEXTAUTH_URL || process.env.VERCEL_URL
@@ -186,6 +205,21 @@ function layout(content: string) {
     ${content}
     <div style="margin-top:40px;padding-top:20px;border-top:1px solid #27272a;font-size:11px;color:#71717a">
       Cet email a été envoyé par BrandSync. Si tu n'as pas demandé cet email, ignore-le.
+    </div>
+  </div>
+</body></html>`;
+}
+
+function campaignLayout(body: string, userName: string) {
+  // Convert line breaks to <br> for plain text content
+  const htmlBody = body.replace(/\n/g, "<br/>");
+  return `<!DOCTYPE html>
+<html><head><meta charset="utf-8"/></head>
+<body style="margin:0;padding:0;background:#f9fafb;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif">
+  <div style="max-width:580px;margin:40px auto;background:#ffffff;border-radius:12px;border:1px solid #e5e7eb;padding:40px;color:#111827">
+    ${htmlBody}
+    <div style="margin-top:32px;padding-top:20px;border-top:1px solid #e5e7eb;font-size:11px;color:#9ca3af">
+      Envoyé par ${userName} via BrandSync
     </div>
   </div>
 </body></html>`;

@@ -56,6 +56,10 @@ export default function MediaKitPage({ data }: { data: MediaKitData }) {
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState("");
 
+  // Track what's actually saved in DB to avoid showing links to unsaved kits
+  const [savedSlug, setSavedSlug] = useState(data.slug || "");
+  const [savedPublic, setSavedPublic] = useState(data.mediaKitPublic);
+
   const addRate = () => setRates([...rates, { label: "", price: "" }]);
   const removeRate = (i: number) => setRates(rates.filter((_, idx) => idx !== i));
   const updateRate = (i: number, field: keyof Rate, value: string) => {
@@ -83,6 +87,8 @@ export default function MediaKitPage({ data }: { data: MediaKitData }) {
     startTransition(async () => {
       try {
         await updateMediaKit(fd);
+        setSavedSlug(slug);
+        setSavedPublic(isPublic);
         setSaved(true);
         setTimeout(() => setSaved(false), 3000);
       } catch (e: any) {
@@ -91,9 +97,11 @@ export default function MediaKitPage({ data }: { data: MediaKitData }) {
     });
   };
 
-  const kitUrl = slug
-    ? `${typeof window !== "undefined" ? window.location.origin : ""}/kit/${slug}`
+  const kitUrl = savedSlug
+    ? `${typeof window !== "undefined" ? window.location.origin : ""}/kit/${savedSlug}`
     : null;
+
+  const hasUnsavedChanges = slug !== savedSlug || isPublic !== savedPublic;
 
   const copyLink = () => {
     if (kitUrl) {
@@ -121,7 +129,7 @@ export default function MediaKitPage({ data }: { data: MediaKitData }) {
             </p>
           </div>
           <div className="flex items-center gap-3">
-            {kitUrl && isPublic && (
+            {kitUrl && savedPublic && (
               <>
                 <a
                   href={kitUrl}
@@ -321,6 +329,11 @@ export default function MediaKitPage({ data }: { data: MediaKitData }) {
         {/* Save */}
         {error && (
           <p className="text-sm text-red-400 mb-4">{error}</p>
+        )}
+        {hasUnsavedChanges && (
+          <p className="text-xs text-amber-400 mb-3">
+            ⚠ Modifications non sauvegardées — sauvegarde pour que ton lien fonctionne
+          </p>
         )}
         <button
           onClick={handleSave}

@@ -43,6 +43,8 @@ model User {
   payments      Payment[]
   events        Event[]
   aiUsage       AiUsage[]
+  contacts      Contact[]
+  emailCampaigns EmailCampaign[]
 }
 
 // ── NextAuth (obligatoire) ──
@@ -165,4 +167,55 @@ model Event {
 
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ── Contacts (base de données emails) ──
+model Contact {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  company   String?
+  tags      String?  // JSON string: ["vip", "marque", ...]
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  recipients EmailRecipient[]
+
+  @@unique([userId, email])
+}
+
+// ── Campagnes email ──
+model EmailCampaign {
+  id        String    @id @default(cuid())
+  subject   String
+  body      String
+  status    String    @default("draft") // draft | sent
+  sentAt    DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  recipients EmailRecipient[]
+}
+
+// ── Destinataires par campagne ──
+model EmailRecipient {
+  id         String    @id @default(cuid())
+  email      String
+  status     String    @default("pending") // pending | sent | failed
+  sentAt     DateTime?
+
+  campaignId String
+  campaign   EmailCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  contactId  String?
+  contact    Contact?  @relation(fields: [contactId], references: [id], onDelete: SetNull)
+
+  @@unique([campaignId, email])
 }

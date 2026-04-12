@@ -1,7 +1,15 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="102.4" fill="#09090b"/>
-  <g transform="translate(256, 256)">
-    <polygon points="0,-163.84 40.96,-40.96 163.84,0 40.96,40.96 0,163.84 -40.96,40.96 -163.84,0 -40.96,-40.96" fill="#7c3aed"/>
-    <polygon points="0,-92.16 20.48,-20.48 92.16,0 20.48,20.48 0,92.16 -20.48,20.48 -92.16,0 -20.48,-20.48" fill="#a78bfa"/>
-  </g>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#7c3aed"/>
+      <stop offset="100%" stop-color="#5b21b6"/>
+    </linearGradient>
+    <linearGradient id="star" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#e0d4ff"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <path d="M256 96 L296 216 L416 256 L296 296 L256 416 L216 296 L96 256 L216 216 Z" fill="url(#star)"/>
+  <path d="M368 112 L384 152 L424 168 L384 184 L368 224 L352 184 L312 168 L352 152 Z" fill="white" opacity="0.6"/>
 </svg>

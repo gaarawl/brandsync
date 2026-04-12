@@ -19,6 +19,7 @@ import {
   Bot,
   Crown,
   FileUser,
+  Mail,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -32,6 +33,7 @@ const mainNav = [
   { icon: CreditCard, label: "Paiements", href: "/dashboard/paiements" },
   { icon: BarChart3, label: "Statistiques", href: "/dashboard/statistiques" },
   { icon: Bot, label: "IA Assistant", href: "/dashboard/ai" },
+  { icon: Mail, label: "Emails", href: "/dashboard/emails" },
   { icon: FileUser, label: "Media Kit", href: "/dashboard/media-kit" },
 ];
 
