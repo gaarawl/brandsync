@@ -165,6 +165,15 @@ body {
     animation: shimmer-sweep 8s ease-in-out infinite;
   }
 
+  @keyframes slide-in {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(0); }
+  }
+
+  .animate-slide-in {
+    animation: slide-in 0.25s ease-out;
+  }
+
   @keyframes shimmer-sweep {
     0%, 100% { left: -100%; }
     50% { left: 100%; }

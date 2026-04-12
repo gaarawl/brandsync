@@ -20,9 +20,11 @@ import {
   Crown,
   FileUser,
   Mail,
+  Menu,
+  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTheme } from "@/components/theme-provider";
 
 const mainNav = [
@@ -70,46 +72,67 @@ function ThemeToggle({ collapsed }: { collapsed: boolean }) {
 export default function Sidebar({ user }: SidebarProps) {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
-  return (
-    <aside
-      className={cn(
-        "flex h-screen flex-col border-r border-border-subtle sidebar-glass transition-all duration-300",
-        collapsed ? "w-[68px]" : "w-60"
-      )}
-    >
+  // Close mobile menu on route change
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [pathname]);
+
+  // Prevent body scroll when mobile menu is open
+  useEffect(() => {
+    if (mobileOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [mobileOpen]);
+
+  const sidebarContent = (
+    <>
       {/* Logo */}
       <div className="flex items-center justify-between px-4 py-5 border-b border-border-subtle">
         <Link href="/dashboard" className="flex items-center gap-2.5">
           <div className="relative flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-accent to-accent-glow shadow-lg shadow-accent/20">
             <Sparkles className="h-4 w-4 text-white shrink-0" />
           </div>
-          {!collapsed && <span className="text-sm font-bold tracking-tight">BrandSync</span>}
+          <span className="text-sm font-bold tracking-tight">BrandSync</span>
         </Link>
+        {/* Close button on mobile, collapse on desktop */}
         <button
-          onClick={() => setCollapsed(!collapsed)}
-          className="text-text-muted hover:text-text-primary transition-colors hidden lg:block"
+          onClick={() => {
+            if (window.innerWidth < 1024) {
+              setMobileOpen(false);
+            } else {
+              setCollapsed(!collapsed);
+            }
+          }}
+          className="text-text-muted hover:text-text-primary transition-colors"
         >
-          {collapsed ? (
-            <ChevronsRight className="h-4 w-4" />
-          ) : (
-            <ChevronsLeft className="h-4 w-4" />
-          )}
+          <X className="h-5 w-5 lg:hidden" />
+          <span className="hidden lg:block">
+            {collapsed ? (
+              <ChevronsRight className="h-4 w-4" />
+            ) : (
+              <ChevronsLeft className="h-4 w-4" />
+            )}
+          </span>
         </button>
       </div>
 
       {/* Search */}
-      {!collapsed && (
-        <div className="px-3 pt-4 pb-2">
-          <div className="flex items-center gap-2 rounded-lg border border-border-subtle bg-bg-primary px-3 py-2 text-xs text-text-muted">
-            <Search className="h-3.5 w-3.5 shrink-0" />
-            <span>Rechercher...</span>
-            <span className="ml-auto text-[10px] border border-border-subtle rounded px-1">
-              ⌘K
-            </span>
-          </div>
+      <div className="px-3 pt-4 pb-2">
+        <div className="flex items-center gap-2 rounded-lg border border-border-subtle bg-bg-primary px-3 py-2 text-xs text-text-muted">
+          <Search className="h-3.5 w-3.5 shrink-0" />
+          <span>Rechercher...</span>
+          <span className="ml-auto text-[10px] border border-border-subtle rounded px-1">
+            ⌘K
+          </span>
         </div>
-      )}
+      </div>
 
       {/* Main nav */}
       <nav className="flex-1 px-3 py-3 space-y-1 overflow-y-auto">
@@ -127,17 +150,14 @@ export default function Sidebar({ user }: SidebarProps) {
                 "flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm transition-all duration-200",
                 isActive
                   ? "bg-accent/10 text-accent font-medium shadow-sm shadow-accent/5 border border-accent/10"
-                  : "text-text-secondary hover:text-text-primary hover:bg-bg-elevated border border-transparent",
-                collapsed && "justify-center px-2"
+                  : "text-text-secondary hover:text-text-primary hover:bg-bg-elevated border border-transparent"
               )}
-              title={collapsed ? item.label : undefined}
             >
               <item.icon className="h-[18px] w-[18px] shrink-0" />
-              {!collapsed && item.label}
+              {item.label}
             </Link>
           );
         })}
-
       </nav>
 
       {/* Upgrade / Bottom nav */}
@@ -145,36 +165,25 @@ export default function Sidebar({ user }: SidebarProps) {
         {user.plan !== "pro" && (
           <Link
             href="/pricing"
-            className={cn(
-              "flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium bg-gradient-to-r from-accent/15 via-accent/10 to-purple-600/10 text-accent border border-accent/15 hover:border-accent/30 hover:shadow-md hover:shadow-accent/10 transition-all duration-300",
-              collapsed && "justify-center px-2"
-            )}
-            title={collapsed ? "Passer au Pro" : undefined}
+            className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium bg-gradient-to-r from-accent/15 via-accent/10 to-purple-600/10 text-accent border border-accent/15 hover:border-accent/30 hover:shadow-md hover:shadow-accent/10 transition-all duration-300"
           >
             <Crown className="h-[18px] w-[18px] shrink-0" />
-            {!collapsed && "Passer au Pro"}
+            Passer au Pro
           </Link>
         )}
-        <ThemeToggle collapsed={collapsed} />
-        {!collapsed && (
-          <Link
-            href="/dashboard/settings"
-            className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm text-text-secondary hover:text-text-primary hover:bg-bg-elevated transition-colors"
-          >
-            <Settings className="h-[18px] w-[18px]" />
-            Paramètres
-          </Link>
-        )}
+        <ThemeToggle collapsed={false} />
+        <Link
+          href="/dashboard/settings"
+          className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm text-text-secondary hover:text-text-primary hover:bg-bg-elevated transition-colors"
+        >
+          <Settings className="h-[18px] w-[18px]" />
+          Paramètres
+        </Link>
       </div>
 
       {/* User */}
       <div className="border-t border-border-subtle px-3 py-3">
-        <div
-          className={cn(
-            "flex items-center gap-2.5 rounded-lg px-2 py-2 hover:bg-bg-elevated/50 transition-colors",
-            collapsed && "justify-center"
-          )}
-        >
+        <div className="flex items-center gap-2.5 rounded-lg px-2 py-2 hover:bg-bg-elevated/50 transition-colors">
           {user.image ? (
             <img
               src={user.image}
@@ -184,18 +193,166 @@ export default function Sidebar({ user }: SidebarProps) {
           ) : (
             <div className="h-8 w-8 rounded-full bg-gradient-to-br from-accent to-accent-glow shrink-0 ring-2 ring-accent/20" />
           )}
-          {!collapsed && (
-            <div className="min-w-0">
-              <p className="text-xs font-medium text-text-primary truncate">
-                {user.name || "Utilisateur"}
-              </p>
-              <p className="text-[10px] text-text-muted truncate">
-                {user.email}
-              </p>
-            </div>
-          )}
+          <div className="min-w-0">
+            <p className="text-xs font-medium text-text-primary truncate">
+              {user.name || "Utilisateur"}
+            </p>
+            <p className="text-[10px] text-text-muted truncate">
+              {user.email}
+            </p>
+          </div>
         </div>
       </div>
-    </aside>
+    </>
+  );
+
+  return (
+    <>
+      {/* Mobile menu button — fixed bottom-right */}
+      <button
+        onClick={() => setMobileOpen(true)}
+        className="fixed bottom-5 right-5 z-50 flex h-14 w-14 items-center justify-center rounded-2xl bg-accent text-white shadow-xl shadow-accent/30 lg:hidden active:scale-95 transition-transform"
+        aria-label="Ouvrir le menu"
+      >
+        <Menu className="h-6 w-6" />
+      </button>
+
+      {/* Mobile overlay */}
+      {mobileOpen && (
+        <div
+          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm lg:hidden"
+          onClick={() => setMobileOpen(false)}
+        >
+          <aside
+            className="h-full w-72 flex flex-col sidebar-glass border-r border-border-subtle animate-slide-in"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {sidebarContent}
+          </aside>
+        </div>
+      )}
+
+      {/* Desktop sidebar */}
+      <aside
+        className={cn(
+          "hidden lg:flex h-screen flex-col border-r border-border-subtle sidebar-glass transition-all duration-300",
+          collapsed ? "w-[68px]" : "w-60"
+        )}
+      >
+        {/* Desktop version with collapse support */}
+        <div className="flex items-center justify-between px-4 py-5 border-b border-border-subtle">
+          <Link href="/dashboard" className="flex items-center gap-2.5">
+            <div className="relative flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-accent to-accent-glow shadow-lg shadow-accent/20">
+              <Sparkles className="h-4 w-4 text-white shrink-0" />
+            </div>
+            {!collapsed && <span className="text-sm font-bold tracking-tight">BrandSync</span>}
+          </Link>
+          <button
+            onClick={() => setCollapsed(!collapsed)}
+            className="text-text-muted hover:text-text-primary transition-colors"
+          >
+            {collapsed ? (
+              <ChevronsRight className="h-4 w-4" />
+            ) : (
+              <ChevronsLeft className="h-4 w-4" />
+            )}
+          </button>
+        </div>
+
+        {!collapsed && (
+          <div className="px-3 pt-4 pb-2">
+            <div className="flex items-center gap-2 rounded-lg border border-border-subtle bg-bg-primary px-3 py-2 text-xs text-text-muted">
+              <Search className="h-3.5 w-3.5 shrink-0" />
+              <span>Rechercher...</span>
+              <span className="ml-auto text-[10px] border border-border-subtle rounded px-1">
+                ⌘K
+              </span>
+            </div>
+          </div>
+        )}
+
+        <nav className="flex-1 px-3 py-3 space-y-1 overflow-y-auto">
+          {mainNav.map((item) => {
+            const isActive =
+              item.href === "/dashboard"
+                ? pathname === "/dashboard"
+                : pathname.startsWith(item.href);
+
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  "flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm transition-all duration-200",
+                  isActive
+                    ? "bg-accent/10 text-accent font-medium shadow-sm shadow-accent/5 border border-accent/10"
+                    : "text-text-secondary hover:text-text-primary hover:bg-bg-elevated border border-transparent",
+                  collapsed && "justify-center px-2"
+                )}
+                title={collapsed ? item.label : undefined}
+              >
+                <item.icon className="h-[18px] w-[18px] shrink-0" />
+                {!collapsed && item.label}
+              </Link>
+            );
+          })}
+        </nav>
+
+        <div className="border-t border-border-subtle px-3 py-2 space-y-1">
+          {user.plan !== "pro" && (
+            <Link
+              href="/pricing"
+              className={cn(
+                "flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium bg-gradient-to-r from-accent/15 via-accent/10 to-purple-600/10 text-accent border border-accent/15 hover:border-accent/30 hover:shadow-md hover:shadow-accent/10 transition-all duration-300",
+                collapsed && "justify-center px-2"
+              )}
+              title={collapsed ? "Passer au Pro" : undefined}
+            >
+              <Crown className="h-[18px] w-[18px] shrink-0" />
+              {!collapsed && "Passer au Pro"}
+            </Link>
+          )}
+          <ThemeToggle collapsed={collapsed} />
+          {!collapsed && (
+            <Link
+              href="/dashboard/settings"
+              className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm text-text-secondary hover:text-text-primary hover:bg-bg-elevated transition-colors"
+            >
+              <Settings className="h-[18px] w-[18px]" />
+              Paramètres
+            </Link>
+          )}
+        </div>
+
+        <div className="border-t border-border-subtle px-3 py-3">
+          <div
+            className={cn(
+              "flex items-center gap-2.5 rounded-lg px-2 py-2 hover:bg-bg-elevated/50 transition-colors",
+              collapsed && "justify-center"
+            )}
+          >
+            {user.image ? (
+              <img
+                src={user.image}
+                alt=""
+                className="h-8 w-8 rounded-full shrink-0 ring-2 ring-border-subtle"
+              />
+            ) : (
+              <div className="h-8 w-8 rounded-full bg-gradient-to-br from-accent to-accent-glow shrink-0 ring-2 ring-accent/20" />
+            )}
+            {!collapsed && (
+              <div className="min-w-0">
+                <p className="text-xs font-medium text-text-primary truncate">
+                  {user.name || "Utilisateur"}
+                </p>
+                <p className="text-[10px] text-text-muted truncate">
+                  {user.email}
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      </aside>
+    </>
   );
 }
