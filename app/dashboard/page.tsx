@@ -153,8 +153,9 @@ export default async function DashboardPage() {
     };
   });
 
+  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const eventItems = events
-    .filter((e) => new Date(e.date) >= now)
+    .filter((e) => new Date(e.date) >= todayStart)
     .map((e) => {
       const d = new Date(e.date);
       return {
