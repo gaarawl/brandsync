@@ -17,6 +17,7 @@ import {
   Check,
 } from "lucide-react";
 import { updateMediaKit } from "@/lib/actions/user";
+import LinkEditor, { type LinkItem } from "@/components/dashboard/link-editor";
 
 type Rate = { label: string; price: string };
 
@@ -35,6 +36,8 @@ interface MediaKitData {
   name: string;
   image: string | null;
   stats: { collabs: number; brands: number; revenue: number };
+  links: LinkItem[];
+  pageViews: number;
 }
 
 export default function MediaKitPage({ data }: { data: MediaKitData }) {
@@ -125,8 +128,13 @@ export default function MediaKitPage({ data }: { data: MediaKitData }) {
               Media Kit
             </h1>
             <p className="text-sm text-text-muted mt-1">
-              Ta page publique à partager avec les marques
+              Ta page link-in-bio à partager partout
             </p>
+            {data.pageViews > 0 && (
+              <p className="text-xs text-accent mt-1">
+                {data.pageViews.toLocaleString("fr-FR")} vue{data.pageViews > 1 ? "s" : ""}
+              </p>
+            )}
           </div>
           <div className="flex items-center gap-3">
             {kitUrl && savedPublic && (
@@ -325,6 +333,9 @@ export default function MediaKitPage({ data }: { data: MediaKitData }) {
             </div>
           )}
         </section>
+
+        {/* Links */}
+        <LinkEditor links={data.links} />
 
         {/* Save */}
         {error && (

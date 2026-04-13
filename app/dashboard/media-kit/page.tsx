@@ -17,6 +17,9 @@ export default async function MediaKitDashboardPage() {
             where: { status: "paid" },
             select: { amount: true },
           },
+          links: {
+            orderBy: { position: "asc" },
+          },
         },
       })
     : null;
@@ -45,6 +48,16 @@ export default async function MediaKitDashboardPage() {
           brands: user?._count.brands || 0,
           revenue: totalRevenue,
         },
+        links: (user?.links || []).map((l) => ({
+          id: l.id,
+          title: l.title,
+          url: l.url,
+          emoji: l.emoji,
+          position: l.position,
+          active: l.active,
+          clicks: l.clicks,
+        })),
+        pageViews: user?.pageViews || 0,
       }}
     />
   );
