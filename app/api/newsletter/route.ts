@@ -1,5 +1,8 @@
 import { prisma } from "@/lib/prisma";
+import { sendNewsletterToSubscriber } from "@/lib/email";
 import { NextRequest, NextResponse } from "next/server";
+import { readFileSync } from "fs";
+import { join } from "path";
 
 export async function POST(req: NextRequest) {
   try {
@@ -26,6 +29,15 @@ export async function POST(req: NextRequest) {
     await prisma.newsletterSubscriber.create({
       data: { email: normalized },
     });
+
+    // Send the newsletter immediately
+    try {
+      const htmlPath = join(process.cwd(), "lib", "emails", "newsletter-launch.html");
+      const htmlContent = readFileSync(htmlPath, "utf-8");
+      await sendNewsletterToSubscriber(normalized, htmlContent);
+    } catch (e) {
+      console.error("Failed to send newsletter to", normalized, e);
+    }
 
     return NextResponse.json({ success: true });
   } catch {
