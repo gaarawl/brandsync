@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Sparkles } from "lucide-react";
+import { Sparkles, Send, CheckCircle2, Loader2 } from "lucide-react";
 
 // ── Set your launch date here (midnight Paris time) ──
 const LAUNCH_DATE = new Date("2026-04-20T00:00:00+02:00");
@@ -30,6 +30,82 @@ function TimeBlock({ value, label }: { value: number; label: string }) {
       <span className="mt-2 sm:mt-3 text-[10px] sm:text-sm font-medium uppercase tracking-widest text-violet-300/70">
         {label}
       </span>
+    </div>
+  );
+}
+
+function NewsletterForm() {
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "already" | "error">("idle");
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email.trim() || status === "loading") return;
+    setStatus("loading");
+    try {
+      const res = await fetch("/api/newsletter", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim() }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setStatus("error"); return; }
+      setStatus(data.alreadySubscribed ? "already" : "success");
+    } catch {
+      setStatus("error");
+    }
+  };
+
+  if (status === "success" || status === "already") {
+    return (
+      <div className="mt-12 flex flex-col items-center gap-3 animate-in fade-in">
+        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-violet-500/20">
+          <CheckCircle2 className="h-6 w-6 text-violet-400" />
+        </div>
+        <p className="text-sm font-medium text-white">
+          {status === "already" ? "Tu es déjà inscrit(e) !" : "Inscription confirmée !"}
+        </p>
+        <p className="text-xs text-violet-300/50 max-w-xs text-center">
+          Tu recevras un email le jour du lancement.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-12 flex flex-col items-center gap-4 w-full max-w-md">
+      <p className="text-xs font-medium uppercase tracking-[4px] text-violet-400/70">
+        Sois notifié au lancement
+      </p>
+      <form onSubmit={handleSubmit} className="flex w-full gap-2">
+        <div className="relative flex-1">
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="ton@email.com"
+            required
+            className="w-full rounded-xl border border-violet-500/20 bg-white/5 px-4 py-3.5 text-sm text-white placeholder:text-violet-300/30 outline-none focus:border-violet-500/50 backdrop-blur-sm transition-colors"
+          />
+        </div>
+        <button
+          type="submit"
+          disabled={status === "loading"}
+          className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 px-6 py-3.5 text-sm font-semibold text-white hover:from-violet-500 hover:to-purple-500 transition-all shadow-lg shadow-violet-600/25 disabled:opacity-50"
+        >
+          {status === "loading" ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <>
+              <Send className="h-4 w-4" />
+              <span className="hidden sm:inline">Notifier</span>
+            </>
+          )}
+        </button>
+      </form>
+      {status === "error" && (
+        <p className="text-xs text-red-400">Une erreur est survenue, réessaie.</p>
+      )}
     </div>
   );
 }
@@ -91,17 +167,8 @@ export default function ComingSoonPage() {
           <TimeBlock value={time.seconds} label="Sec" />
         </div>
 
-        {/* Newsletter placeholder — uncomment when ready */}
-        {/* <div className="mt-12 flex w-full max-w-sm gap-2">
-          <input
-            type="email"
-            placeholder="ton@email.com"
-            className="flex-1 rounded-xl border border-violet-500/20 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-violet-300/30 outline-none focus:border-violet-500/50 backdrop-blur-sm"
-          />
-          <button className="rounded-xl bg-violet-600 px-6 py-3 text-sm font-semibold text-white hover:bg-violet-500 transition-colors shadow-lg shadow-violet-600/25">
-            Notifier
-          </button>
-        </div> */}
+        {/* Newsletter */}
+        <NewsletterForm />
 
         {/* Footer */}
         <p className="mt-16 text-xs text-violet-300/20">
