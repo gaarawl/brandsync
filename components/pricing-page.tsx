@@ -255,9 +255,14 @@ export default function PricingPage() {
                   {plan.tier !== "free" && (
                     <span className="text-sm text-text-muted">/mois</span>
                   )}
-                  {plan.tier !== "free" && billing === "monthly" && (
+                  {plan.tier === "pro" && billing === "monthly" && (
                     <span className="rounded-full bg-green-500/15 text-green-400 px-2.5 py-0.5 text-[10px] font-semibold">
                       -50% le 1er mois
+                    </span>
+                  )}
+                  {plan.tier === "business" && billing === "monthly" && (
+                    <span className="rounded-full bg-green-500/15 text-green-400 px-2.5 py-0.5 text-[10px] font-semibold">
+                      -10% le 1er mois
                     </span>
                   )}
                   {plan.tier !== "free" && billing === "yearly" && (
@@ -267,24 +272,44 @@ export default function PricingPage() {
                   )}
                 </div>
                 <AnimatePresence>
-                  {plan.tier !== "free" && billing === "monthly" && (
+                  {plan.tier === "pro" && billing === "monthly" && (
                     <motion.p
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: "auto" }}
                       exit={{ opacity: 0, height: 0 }}
                       className="text-xs text-green-400/80 mt-1"
                     >
-                      {plan.tier === "pro" ? "4.99" : "25"}&euro; le premier mois, puis {plan.price.monthly}&euro;/mois
+                      4.99&euro; le premier mois, puis 9.99&euro;/mois
                     </motion.p>
                   )}
-                  {plan.tier !== "free" && billing === "yearly" && (
+                  {plan.tier === "business" && billing === "monthly" && (
                     <motion.p
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: "auto" }}
                       exit={{ opacity: 0, height: 0 }}
                       className="text-xs text-green-400/80 mt-1"
                     >
-                      {plan.price.yearly}&euro;/mois factur&eacute; annuellement
+                      45&euro; le premier mois, puis 50&euro;/mois
+                    </motion.p>
+                  )}
+                  {plan.tier === "pro" && billing === "yearly" && (
+                    <motion.p
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="text-xs text-green-400/80 mt-1"
+                    >
+                      79.92&euro; au lieu de 119.88&euro;
+                    </motion.p>
+                  )}
+                  {plan.tier === "business" && billing === "yearly" && (
+                    <motion.p
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="text-xs text-green-400/80 mt-1"
+                    >
+                      480&euro; au lieu de 600&euro;
                     </motion.p>
                   )}
                 </AnimatePresence>

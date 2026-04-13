@@ -58,10 +58,19 @@ export async function POST(req: NextRequest) {
   const eligibleForPromo = (isMonthly || isYearly) && !user?.usedPromotion;
 
   // Create or get the appropriate coupon
+  const isPro = priceId === PRO_MONTHLY_PRICE_ID || priceId === PRO_YEARLY_PRICE_ID;
   let couponId: string | undefined;
   if (eligibleForPromo) {
-    const couponName = isMonthly ? "WELCOME50" : "WELCOME33";
-    const percentOff = isMonthly ? 50 : 33;
+    let couponName: string;
+    let percentOff: number;
+
+    if (isMonthly) {
+      couponName = isPro ? "WELCOME50" : "WELCOME10";
+      percentOff = isPro ? 50 : 10;
+    } else {
+      couponName = "WELCOME33";
+      percentOff = 33;
+    }
 
     const coupons = await getStripe().coupons.list({ limit: 100 });
     const existing = coupons.data.find((c) => c.name === couponName);
