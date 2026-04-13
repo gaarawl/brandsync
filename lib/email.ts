@@ -10,7 +10,7 @@ function getResend(): Resend {
   return _resend;
 }
 
-const FROM = "BrandSync <onboarding@resend.dev>";
+const FROM = "BrandSync <noreply@brandsync.fr>";
 
 // ─── Welcome ────────────────────────────────────────────────────────
 export async function sendWelcomeEmail(to: string, name: string) {
