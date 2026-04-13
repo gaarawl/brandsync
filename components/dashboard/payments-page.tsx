@@ -161,6 +161,21 @@ export default function PaymentsPage({
     exportCsv(headers, rows, "paiements.csv");
   };
 
+  const [showImportHelp, setShowImportHelp] = useState(false);
+
+  const handleDownloadTemplate = () => {
+    const headers = ["Marque", "Montant", "Statut", "Date facture", "Date échéance", "Date paiement"];
+    const example = ["Nike", "1500", "pending", "2026-04-01", "2026-04-30", ""];
+    const csv = [headers.join(","), example.join(",")].join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "modele-paiements.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   const handleImportCsv = () => {
     const input = document.createElement("input");
     input.type = "file";
@@ -185,8 +200,12 @@ export default function PaymentsPage({
         await createPayment(fd);
         imported++;
       }
-      if (imported > 0) alert(`${imported} paiement(s) importé(s) !`);
-      else alert("Aucun paiement importé. Vérifiez que les noms de marques correspondent.");
+      if (imported > 0) {
+        alert(`${imported} paiement(s) importé(s) !`);
+        setShowImportHelp(false);
+      } else {
+        alert("Aucun paiement importé. Vérifiez que les noms de marques correspondent à celles de votre compte.");
+      }
     };
     input.click();
   };
@@ -229,13 +248,36 @@ export default function PaymentsPage({
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <button
-            onClick={handleImportCsv}
-            className="flex items-center gap-2 rounded-lg border border-border-subtle px-3 py-2.5 text-sm font-medium text-text-secondary hover:bg-bg-elevated transition-colors"
-          >
-            <Upload className="h-4 w-4" />
-            Importer
-          </button>
+          <div className="relative">
+            <button
+              onClick={() => setShowImportHelp(!showImportHelp)}
+              className="flex items-center gap-2 rounded-lg border border-border-subtle px-3 py-2.5 text-sm font-medium text-text-secondary hover:bg-bg-elevated transition-colors"
+            >
+              <Upload className="h-4 w-4" />
+              Importer
+            </button>
+            {showImportHelp && (
+              <div className="absolute right-0 top-12 z-20 w-72 rounded-xl border border-border-subtle bg-bg-surface p-4 shadow-xl space-y-3">
+                <p className="text-xs text-text-secondary">
+                  Importez vos paiements depuis un fichier <strong className="text-text-primary">CSV</strong>. Les noms de marques doivent correspondre à celles de votre compte.
+                </p>
+                <button
+                  onClick={handleDownloadTemplate}
+                  className="flex w-full items-center gap-2 rounded-lg border border-border-subtle px-3 py-2 text-xs font-medium text-accent hover:bg-bg-elevated transition-colors"
+                >
+                  <Download className="h-3.5 w-3.5" />
+                  Télécharger le modèle CSV
+                </button>
+                <button
+                  onClick={handleImportCsv}
+                  className="flex w-full items-center gap-2 rounded-lg bg-accent px-3 py-2 text-xs font-medium text-bg-primary hover:bg-accent-glow transition-colors"
+                >
+                  <Upload className="h-3.5 w-3.5" />
+                  Choisir un fichier CSV
+                </button>
+              </div>
+            )}
+          </div>
           <button
             onClick={handleExportCsv}
             className="flex items-center gap-2 rounded-lg border border-border-subtle px-3 py-2.5 text-sm font-medium text-text-secondary hover:bg-bg-elevated transition-colors"
