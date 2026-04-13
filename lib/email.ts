@@ -180,6 +180,19 @@ export async function sendCampaignEmail(
   return result;
 }
 
+// ─── Newsletter ────────────────────────────────────────────────────
+export async function sendNewsletterToSubscriber(
+  to: string,
+  htmlContent: string
+) {
+  return getResend().emails.send({
+    from: "BrandSync <noreply@brandsync.fr>",
+    to,
+    subject: "BrandSync.fr — 20 avril, 00h00. Le signal est lancé.",
+    html: htmlContent,
+  });
+}
+
 // ─── HTML helpers ───────────────────────────────────────────────────
 function baseUrl() {
   return process.env.NEXTAUTH_URL || process.env.VERCEL_URL

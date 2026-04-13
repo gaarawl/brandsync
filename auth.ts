@@ -55,6 +55,19 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   },
   events: {
     async signIn({ user, isNewUser }) {
+      // Auto-subscribe to newsletter on every sign-in
+      if (user.email) {
+        try {
+          await prisma.newsletterSubscriber.upsert({
+            where: { email: user.email.toLowerCase() },
+            update: {},
+            create: { email: user.email.toLowerCase() },
+          });
+        } catch (e) {
+          console.error("Failed to auto-subscribe newsletter:", e);
+        }
+      }
+
       if (isNewUser && user.email) {
         try {
           await sendWelcomeEmail(user.email, user.name || "Créateur");
