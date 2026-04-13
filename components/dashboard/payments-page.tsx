@@ -167,7 +167,7 @@ export default function PaymentsPage({
     const headers = ["Marque", "Montant", "Statut", "Date facture", "Date échéance", "Date paiement"];
     const example = ["Nike", "1500", "pending", "2026-04-01", "2026-04-30", ""];
     const csv = [headers.join(","), example.join(",")].join("\n");
-    const blob = new Blob([csv], { type: "text/csv" });
+    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
