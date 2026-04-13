@@ -1,11 +1,7 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import Anthropic from "@anthropic-ai/sdk";
+import { getGemini, GEMINI_MODEL } from "@/lib/gemini";
 import { NextRequest, NextResponse } from "next/server";
-
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
-});
 
 const PLAN_LIMITS: Record<string, number> = {
   free: 10,
@@ -71,7 +67,7 @@ export async function POST(req: NextRequest) {
 
   const platformList = Array.isArray(platforms) ? platforms.join(", ") : platforms;
 
-  const systemPrompt = `Tu es un expert en tarification pour créateurs de contenu / influenceurs sur le marché français.
+  const prompt = `Tu es un expert en tarification pour créateurs de contenu / influenceurs sur le marché français.
 
 MISSION : Génère une grille tarifaire personnalisée basée sur les informations du créateur.
 
@@ -104,22 +100,13 @@ Inclus les types de contenu pertinents pour la/les plateforme(s) sélectionnée(
 - YouTube : Vidéo intégrée, Vidéo dédiée, Short YouTube, Mention
 - Snapchat : Story Snap, Filtre sponsorisé
 - Twitter : Tweet sponsorisé, Thread
-- Général (toujours inclure) : Pack mensuel, Ambassadeur (tarif mensuel)`;
+- Général (toujours inclure) : Pack mensuel, Ambassadeur (tarif mensuel)
 
-  const response = await anthropic.messages.create({
-    model: "claude-haiku-4-5-20251001",
-    max_tokens: 1024,
-    system: systemPrompt,
-    messages: [
-      {
-        role: "user",
-        content: `Génère ma grille tarifaire pour ${platformList} avec ${followers} abonnés, ${engagementRate}% d'engagement, niche : ${niche}.`,
-      },
-    ],
-  });
+Génère ma grille tarifaire pour ${platformList} avec ${followers} abonnés, ${engagementRate}% d'engagement, niche : ${niche}.`;
 
-  const text =
-    response.content[0].type === "text" ? response.content[0].text : "";
+  const model = getGemini().getGenerativeModel({ model: GEMINI_MODEL });
+  const result = await model.generateContent(prompt);
+  const text = result.response.text();
 
   const parsed = parseAIJson(text);
 

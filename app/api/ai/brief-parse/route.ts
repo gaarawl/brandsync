@@ -1,11 +1,7 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import Anthropic from "@anthropic-ai/sdk";
+import { getGemini, GEMINI_MODEL } from "@/lib/gemini";
 import { NextRequest, NextResponse } from "next/server";
-
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
-});
 
 const PLAN_LIMITS: Record<string, number> = {
   free: 10,
@@ -69,7 +65,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const systemPrompt = `Tu es un assistant expert en analyse de briefs pour créateurs de contenu.
+  const prompt = `Tu es un assistant expert en analyse de briefs pour créateurs de contenu.
 
 MISSION : Extrais les informations structurées d'un email ou brief de marque.
 
@@ -96,22 +92,15 @@ RÉPONDS UNIQUEMENT en JSON valide, sans markdown, sans backticks :
   "confidence": "high"
 }
 
-Le champ "confidence" indique ta confiance dans l'extraction : "high" si le brief est clair et complet, "medium" si certaines infos sont incertaines ou manquantes, "low" si le texte est très ambigu.`;
+Le champ "confidence" indique ta confiance dans l'extraction : "high" si le brief est clair et complet, "medium" si certaines infos sont incertaines ou manquantes, "low" si le texte est très ambigu.
 
-  const response = await anthropic.messages.create({
-    model: "claude-haiku-4-5-20251001",
-    max_tokens: 1024,
-    system: systemPrompt,
-    messages: [
-      {
-        role: "user",
-        content: `Analyse ce brief/email et extrais les informations :\n\n${briefText}`,
-      },
-    ],
-  });
+Analyse ce brief/email et extrais les informations :
 
-  const text =
-    response.content[0].type === "text" ? response.content[0].text : "";
+${briefText}`;
+
+  const model = getGemini().getGenerativeModel({ model: GEMINI_MODEL });
+  const result = await model.generateContent(prompt);
+  const text = result.response.text();
 
   const parsed = parseAIJson(text);
 

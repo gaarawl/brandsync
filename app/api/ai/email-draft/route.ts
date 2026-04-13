@@ -1,11 +1,7 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import Anthropic from "@anthropic-ai/sdk";
+import { getGemini, GEMINI_MODEL } from "@/lib/gemini";
 import { NextRequest, NextResponse } from "next/server";
-
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
-});
 
 const PLAN_LIMITS: Record<string, number> = {
   free: 10,
@@ -22,7 +18,6 @@ export async function POST(req: NextRequest) {
   const { prompt, context } = await req.json();
   const userId = session.user.id;
 
-  // Check usage limits (shared with AI chat)
   const user = await prisma.user.findUnique({
     where: { id: userId },
     select: { plan: true },
@@ -88,15 +83,13 @@ CONSIGNES :
 
 ${context ? `CONTEXTE SUPPLÉMENTAIRE : ${context}` : ""}`;
 
-  const response = await anthropic.messages.create({
-    model: "claude-haiku-4-5-20251001",
-    max_tokens: 1024,
-    system: systemPrompt,
-    messages: [{ role: "user", content: prompt }],
+  const model = getGemini().getGenerativeModel({
+    model: GEMINI_MODEL,
+    systemInstruction: systemPrompt,
   });
 
-  const text =
-    response.content[0].type === "text" ? response.content[0].text : "";
+  const result = await model.generateContent(prompt);
+  const text = result.response.text();
 
   // Increment usage
   await prisma.aiUsage.upsert({
