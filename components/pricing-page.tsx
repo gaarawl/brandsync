@@ -37,7 +37,7 @@ const plans = [
   },
   {
     name: "Pro",
-    price: { monthly: "9.99", yearly: "6.66" },
+    price: { monthly: "9.99", yearly: "7.99" },
     description: "Pour les cr\u00E9ateurs s\u00E9rieux",
     features: [
       { text: "200 messages IA / jour", included: true },
@@ -299,7 +299,7 @@ export default function PricingPage() {
                       exit={{ opacity: 0, height: 0 }}
                       className="text-xs text-green-400/80 mt-1"
                     >
-                      79.92&euro; au lieu de 119.88&euro;
+                      95.88&euro; au lieu de 119.88&euro;
                     </motion.p>
                   )}
                   {plan.tier === "business" && billing === "yearly" && (
