@@ -16,6 +16,7 @@ interface Plan {
   cta: string;
   href: string;
   popular?: boolean;
+  tier: "free" | "pro" | "business";
 }
 
 const plans: Plan[] = [
@@ -32,12 +33,13 @@ const plans: Plan[] = [
       { text: "Export PDF & CSV", included: true },
       { text: "10 messages IA / jour", included: true },
       { text: "Statistiques de base", included: true },
-      { text: "200 messages IA / jour", included: false },
-      { text: "Statistiques avancées", included: false },
+      { text: "200+ messages IA / jour", included: false },
+      { text: "Sync Gmail auto", included: false },
       { text: "Support prioritaire", included: false },
     ],
     cta: "Commencer gratuitement",
     href: "/signup",
+    tier: "free",
   },
   {
     name: "Pro",
@@ -46,19 +48,41 @@ const plans: Plan[] = [
     description:
       "Pour les créateurs qui veulent un vrai cockpit business au quotidien.",
     features: [
-      { text: "Gestion des marques", included: true },
-      { text: "Gestion des collaborations", included: true },
-      { text: "Calendrier", included: true },
-      { text: "Export PDF & CSV", included: true },
       { text: "200 messages IA / jour", included: true },
+      { text: "50 emails / jour", included: true },
       { text: "Statistiques avancées", included: true },
       { text: "Assistant IA avancé", included: true },
+      { text: "Link-in-Bio avec analytics", included: true },
+      { text: "Sync Gmail auto (toutes les 3h)", included: true },
+      { text: "Détection collabs par email", included: true },
       { text: "Support prioritaire", included: true },
-      { text: "Nouveautés en avant-première", included: true },
+      { text: "Nouvelles features en avant-première", included: true },
     ],
     cta: "Passer à Pro",
     href: "/pricing",
     popular: true,
+    tier: "pro",
+  },
+  {
+    name: "Business",
+    price: { monthly: "50€", yearly: "40€" },
+    period: "/mois",
+    description:
+      "Pour les top créateurs qui veulent tout automatiser.",
+    features: [
+      { text: "500 messages IA / jour", included: true },
+      { text: "200 emails / jour", included: true },
+      { text: "Tout le plan Pro inclus", included: true },
+      { text: "Sync Gmail auto (toutes les 30min)", included: true },
+      { text: "Détection collabs temps réel", included: true },
+      { text: "50 destinataires / campagne", included: true },
+      { text: "Support VIP prioritaire", included: true },
+      { text: "Accès anticipé nouvelles features", included: true },
+      { text: "Badge Créateur Vérifié", included: true },
+    ],
+    cta: "Passer Business",
+    href: "/pricing",
+    tier: "business",
   },
 ];
 
@@ -114,7 +138,7 @@ export default function Pricing() {
           </div>
         </div>
 
-        <div className="grid gap-6 sm:grid-cols-2 max-w-3xl mx-auto items-start">
+        <div className="grid gap-6 sm:grid-cols-3 max-w-5xl mx-auto items-start">
           {plans.map((plan, i) => (
             <motion.div
               key={plan.name}
@@ -126,12 +150,19 @@ export default function Pricing() {
                 "relative rounded-2xl border p-8 space-y-6",
                 plan.popular
                   ? "border-accent/30 bg-bg-surface glow-accent"
+                  : plan.tier === "business"
+                  ? "border-amber-500/50 bg-bg-surface shadow-lg shadow-amber-500/5"
                   : "border-border-subtle bg-bg-surface"
               )}
             >
-              {plan.popular && billing === "yearly" && (
+              {plan.popular && (
                 <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-accent px-4 py-1 text-xs font-semibold text-bg-primary">
                   Le plus choisi
+                </span>
+              )}
+              {plan.tier === "business" && (
+                <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-amber-500 px-4 py-1 text-xs font-semibold text-black">
+                  Premium
                 </span>
               )}
 
@@ -157,19 +188,24 @@ export default function Pricing() {
                       {plan.period}
                     </span>
                   )}
-                  {plan.popular && billing === "monthly" && (
+                  {plan.tier === "pro" && billing === "monthly" && (
                     <span className="rounded-full bg-green-500/15 text-green-400 px-2.5 py-0.5 text-[10px] font-semibold">
                       -50% le 1er mois
                     </span>
                   )}
-                  {plan.popular && billing === "yearly" && (
+                  {plan.tier === "business" && billing === "monthly" && (
                     <span className="rounded-full bg-green-500/15 text-green-400 px-2.5 py-0.5 text-[10px] font-semibold">
-                      -33% la 1re année
+                      -10% le 1er mois
+                    </span>
+                  )}
+                  {plan.tier !== "free" && billing === "yearly" && (
+                    <span className="rounded-full bg-green-500/15 text-green-400 px-2.5 py-0.5 text-[10px] font-semibold">
+                      -20%
                     </span>
                   )}
                 </div>
                 <AnimatePresence>
-                  {plan.popular && billing === "monthly" && (
+                  {plan.tier === "pro" && billing === "monthly" && (
                     <motion.p
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: "auto" }}
@@ -179,14 +215,34 @@ export default function Pricing() {
                       4.99&euro; le premier mois, puis 9.99&euro;/mois
                     </motion.p>
                   )}
-                  {plan.popular && billing === "yearly" && (
+                  {plan.tier === "business" && billing === "monthly" && (
                     <motion.p
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: "auto" }}
                       exit={{ opacity: 0, height: 0 }}
                       className="text-xs text-green-400/80 mt-1"
                     >
-                      53.53&euro; la 1&egrave;re ann&eacute;e, puis 79.90&euro;/an
+                      45&euro; le premier mois, puis 50&euro;/mois
+                    </motion.p>
+                  )}
+                  {plan.tier === "pro" && billing === "yearly" && (
+                    <motion.p
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="text-xs text-green-400/80 mt-1"
+                    >
+                      79.92&euro; au lieu de 119.88&euro;
+                    </motion.p>
+                  )}
+                  {plan.tier === "business" && billing === "yearly" && (
+                    <motion.p
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="text-xs text-green-400/80 mt-1"
+                    >
+                      480&euro; au lieu de 600&euro;
                     </motion.p>
                   )}
                 </AnimatePresence>
@@ -199,7 +255,10 @@ export default function Pricing() {
                 {plan.features.map((feat) => (
                   <li key={feat.text} className="flex items-start gap-3">
                     {feat.included ? (
-                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
+                      <Check className={cn(
+                        "mt-0.5 h-4 w-4 shrink-0",
+                        plan.tier === "business" ? "text-amber-400" : "text-accent"
+                      )} />
                     ) : (
                       <X className="mt-0.5 h-4 w-4 shrink-0 text-text-muted/40" />
                     )}
@@ -217,13 +276,24 @@ export default function Pricing() {
                 ))}
               </ul>
 
-              {plan.popular ? (
+              {plan.tier === "pro" ? (
                 <Link
                   href={plan.href}
                   className="group relative block w-full overflow-hidden rounded-xl py-3.5 text-center text-sm font-semibold bg-gradient-to-b from-[#a78bfa] to-[#7c3aed] text-white shadow-[0_0_25px_rgba(139,92,246,0.5),0_0_60px_rgba(139,92,246,0.2)]"
                 >
                   <span className="absolute inset-0 rounded-xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.3)]" />
                   <span className="absolute -inset-2 rounded-2xl bg-accent/25 blur-xl opacity-70 group-hover:opacity-100 group-hover:bg-accent/35 transition-all duration-500" />
+                  <span className="absolute inset-x-4 -top-px h-px bg-gradient-to-r from-transparent via-white/60 to-transparent" />
+                  <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+                  <span className="relative z-10">{plan.cta}</span>
+                </Link>
+              ) : plan.tier === "business" ? (
+                <Link
+                  href={plan.href}
+                  className="group relative block w-full overflow-hidden rounded-xl py-3.5 text-center text-sm font-semibold bg-gradient-to-b from-[#f59e0b] to-[#d97706] text-white shadow-[0_0_25px_rgba(245,158,11,0.4),0_0_60px_rgba(245,158,11,0.15)]"
+                >
+                  <span className="absolute inset-0 rounded-xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.3)]" />
+                  <span className="absolute -inset-2 rounded-2xl bg-amber-500/25 blur-xl opacity-70 group-hover:opacity-100 group-hover:bg-amber-500/35 transition-all duration-500" />
                   <span className="absolute inset-x-4 -top-px h-px bg-gradient-to-r from-transparent via-white/60 to-transparent" />
                   <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out bg-gradient-to-r from-transparent via-white/30 to-transparent" />
                   <span className="relative z-10">{plan.cta}</span>
