@@ -7,7 +7,11 @@ import { sendWelcomeEmail } from "@/lib/email";
 export const { handlers, signIn, signOut, auth } = NextAuth({
   trustHost: true,
   adapter: PrismaAdapter(prisma),
-  session: { strategy: "jwt" },
+  session: {
+    strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60, // 30 jours
+    updateAge: 24 * 60 * 60, // Refresh token toutes les 24h
+  },
   providers: [
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID!,
