@@ -1,39 +1,13 @@
 "use client";
 
-import { useState } from "react";
 import { signIn } from "next-auth/react";
-import { Sparkles, Mail, Lock, ArrowRight, Eye, EyeOff } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 
 export default function LoginPage() {
-  const [showPassword, setShowPassword] = useState(false);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-
   async function handleGoogleSignIn() {
     await signIn("google", { callbackUrl: "/dashboard" });
-  }
-
-  async function handleCredentialsSignIn(e: React.FormEvent) {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
-
-    const result = await signIn("credentials", {
-      email,
-      password,
-      redirect: false,
-    });
-
-    if (result?.error) {
-      setError("Email ou mot de passe incorrect.");
-      setLoading(false);
-    } else {
-      window.location.href = "/dashboard";
-    }
   }
 
   return (
@@ -75,85 +49,6 @@ export default function LoginPage() {
             </svg>
             Continuer avec Google
           </button>
-
-          {/* Divider */}
-          <div className="flex items-center gap-4">
-            <div className="h-px flex-1 bg-border-subtle" />
-            <span className="text-xs text-text-muted">ou</span>
-            <div className="h-px flex-1 bg-border-subtle" />
-          </div>
-
-          {/* Error */}
-          {error && (
-            <div className="rounded-lg bg-red-500/10 border border-red-500/20 px-4 py-3 text-sm text-red-400">
-              {error}
-            </div>
-          )}
-
-          {/* Form */}
-          <form onSubmit={handleCredentialsSignIn} className="space-y-4">
-            {/* Email */}
-            <div className="space-y-2">
-              <label htmlFor="email" className="text-sm font-medium text-text-primary">
-                Email
-              </label>
-              <div className="relative">
-                <Mail className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" />
-                <input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="vous@exemple.com"
-                  required
-                  className="w-full rounded-xl border border-border-subtle bg-bg-primary py-3 pl-10 pr-4 text-sm text-text-primary placeholder:text-text-muted outline-none transition-colors focus:border-accent/50 focus:ring-1 focus:ring-accent/20"
-                />
-              </div>
-            </div>
-
-            {/* Password */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <label htmlFor="password" className="text-sm font-medium text-text-primary">
-                  Mot de passe
-                </label>
-                <a href="#" className="text-xs text-accent hover:text-accent-glow transition-colors">
-                  Mot de passe oublié ?
-                </a>
-              </div>
-              <div className="relative">
-                <Lock className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" />
-                <input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Votre mot de passe"
-                  required
-                  className="w-full rounded-xl border border-border-subtle bg-bg-primary py-3 pl-10 pr-11 text-sm text-text-primary placeholder:text-text-muted outline-none transition-colors focus:border-accent/50 focus:ring-1 focus:ring-accent/20"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary transition-colors"
-                >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
-              </div>
-            </div>
-
-            {/* Submit */}
-            <motion.button
-              type="submit"
-              disabled={loading}
-              whileHover={{ scale: 1.01 }}
-              whileTap={{ scale: 0.99 }}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-accent px-4 py-3 text-sm font-semibold text-bg-primary transition-colors hover:bg-accent-glow shadow-lg shadow-accent-glow/20 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? "Connexion..." : "Se connecter"}
-              {!loading && <ArrowRight className="h-4 w-4" />}
-            </motion.button>
-          </form>
         </div>
 
         {/* Footer */}
@@ -166,9 +61,9 @@ export default function LoginPage() {
 
         <p className="mt-4 text-center text-xs text-text-muted/60">
           En continuant, vous acceptez nos{" "}
-          <a href="#" className="underline hover:text-text-muted">conditions d&apos;utilisation</a>{" "}
+          <Link href="/terms" className="underline hover:text-text-muted">conditions d&apos;utilisation</Link>{" "}
           et notre{" "}
-          <a href="#" className="underline hover:text-text-muted">politique de confidentialité</a>.
+          <Link href="/privacy" className="underline hover:text-text-muted">politique de confidentialité</Link>.
         </p>
       </motion.div>
     </div>

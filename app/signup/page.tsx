@@ -1,18 +1,11 @@
 "use client";
 
-import { useState } from "react";
 import { signIn } from "next-auth/react";
-import { Sparkles, Mail, Lock, User, ArrowRight, Eye, EyeOff, CircleCheck } from "lucide-react";
+import { Sparkles, CircleCheck } from "lucide-react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 
 export default function SignupPage() {
-  const [showPassword, setShowPassword] = useState(false);
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-
   const benefits = [
     "14 jours d'essai gratuit",
     "Aucune carte bancaire requise",
@@ -21,24 +14,6 @@ export default function SignupPage() {
 
   async function handleGoogleSignUp() {
     await signIn("google", { callbackUrl: "/dashboard" });
-  }
-
-  async function handleSignUp(e: React.FormEvent) {
-    e.preventDefault();
-    setLoading(true);
-
-    // Pour l'instant, on sign in directement avec les credentials
-    // Plus tard : créer le user en base puis sign in
-    const result = await signIn("credentials", {
-      email,
-      password,
-      redirect: false,
-    });
-
-    if (!result?.error) {
-      window.location.href = "/dashboard";
-    }
-    setLoading(false);
   }
 
   return (
@@ -93,93 +68,6 @@ export default function SignupPage() {
             </svg>
             S&apos;inscrire avec Google
           </button>
-
-          {/* Divider */}
-          <div className="flex items-center gap-4">
-            <div className="h-px flex-1 bg-border-subtle" />
-            <span className="text-xs text-text-muted">ou</span>
-            <div className="h-px flex-1 bg-border-subtle" />
-          </div>
-
-          {/* Form */}
-          <form onSubmit={handleSignUp} className="space-y-4">
-            {/* Name */}
-            <div className="space-y-2">
-              <label htmlFor="name" className="text-sm font-medium text-text-primary">
-                Nom complet
-              </label>
-              <div className="relative">
-                <User className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" />
-                <input
-                  id="name"
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Emma Laurent"
-                  required
-                  className="w-full rounded-xl border border-border-subtle bg-bg-primary py-3 pl-10 pr-4 text-sm text-text-primary placeholder:text-text-muted outline-none transition-colors focus:border-accent/50 focus:ring-1 focus:ring-accent/20"
-                />
-              </div>
-            </div>
-
-            {/* Email */}
-            <div className="space-y-2">
-              <label htmlFor="email" className="text-sm font-medium text-text-primary">
-                Email
-              </label>
-              <div className="relative">
-                <Mail className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" />
-                <input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="vous@exemple.com"
-                  required
-                  className="w-full rounded-xl border border-border-subtle bg-bg-primary py-3 pl-10 pr-4 text-sm text-text-primary placeholder:text-text-muted outline-none transition-colors focus:border-accent/50 focus:ring-1 focus:ring-accent/20"
-                />
-              </div>
-            </div>
-
-            {/* Password */}
-            <div className="space-y-2">
-              <label htmlFor="password" className="text-sm font-medium text-text-primary">
-                Mot de passe
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" />
-                <input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Minimum 8 caractères"
-                  required
-                  minLength={8}
-                  className="w-full rounded-xl border border-border-subtle bg-bg-primary py-3 pl-10 pr-11 text-sm text-text-primary placeholder:text-text-muted outline-none transition-colors focus:border-accent/50 focus:ring-1 focus:ring-accent/20"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary transition-colors"
-                >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
-              </div>
-            </div>
-
-            {/* Submit */}
-            <motion.button
-              type="submit"
-              disabled={loading}
-              whileHover={{ scale: 1.01 }}
-              whileTap={{ scale: 0.99 }}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-accent px-4 py-3 text-sm font-semibold text-bg-primary transition-colors hover:bg-accent-glow shadow-lg shadow-accent-glow/20 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? "Création..." : "Créer mon compte"}
-              {!loading && <ArrowRight className="h-4 w-4" />}
-            </motion.button>
-          </form>
         </div>
 
         {/* Footer */}
@@ -192,9 +80,9 @@ export default function SignupPage() {
 
         <p className="mt-4 text-center text-xs text-text-muted/60">
           En créant un compte, vous acceptez nos{" "}
-          <a href="#" className="underline hover:text-text-muted">conditions d&apos;utilisation</a>{" "}
+          <Link href="/terms" className="underline hover:text-text-muted">conditions d&apos;utilisation</Link>{" "}
           et notre{" "}
-          <a href="#" className="underline hover:text-text-muted">politique de confidentialité</a>.
+          <Link href="/privacy" className="underline hover:text-text-muted">politique de confidentialité</Link>.
         </p>
       </motion.div>
     </div>
