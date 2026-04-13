@@ -213,18 +213,18 @@ export default function AIChatPage({ summary }: { summary: Summary }) {
         </div>
 
         {/* Tabs */}
-        <div className="flex items-center gap-1 mt-4">
+        <div className="flex items-center gap-3 mt-4">
           {tabs.map((tab) => (
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
-              className={`flex items-center gap-2 rounded-lg px-3.5 py-2 text-xs font-medium transition-colors ${
+              className={`flex items-center gap-3 rounded-xl px-6 py-3 text-base font-medium transition-colors ${
                 activeTab === tab.key
                   ? "bg-accent/10 text-accent"
                   : "text-text-muted hover:text-text-primary hover:bg-bg-elevated"
               }`}
             >
-              <tab.icon className="h-3.5 w-3.5" />
+              <tab.icon className="h-5 w-5" />
               {tab.label}
             </button>
           ))}
