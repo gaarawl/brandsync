@@ -114,14 +114,14 @@ export default function EmailsPage({
   const [syncError, setSyncError] = useState("");
 
   // Contacts state
-  const [contacts] = useState(initialContacts);
+  const [contacts, setContacts] = useState(initialContacts);
   const [showContactModal, setShowContactModal] = useState(false);
   const [editingContact, setEditingContact] = useState<Contact | null>(null);
   const [contactSearch, setContactSearch] = useState("");
   const [contactError, setContactError] = useState("");
 
   // Campaigns state
-  const [campaigns] = useState(initialCampaigns);
+  const [campaigns, setCampaigns] = useState(initialCampaigns);
   const [showCampaignModal, setShowCampaignModal] = useState(false);
   const [editingCampaign, setEditingCampaign] = useState<Campaign | null>(null);
   const [campaignError, setCampaignError] = useState("");
@@ -180,6 +180,7 @@ export default function EmailsPage({
   };
 
   const handleDeleteContact = (id: string) => {
+    setContacts((prev) => prev.filter((c) => c.id !== id));
     startTransition(async () => {
       try {
         await deleteContact(id);
@@ -288,6 +289,7 @@ export default function EmailsPage({
   };
 
   const handleDeleteCampaign = (id: string) => {
+    setCampaigns((prev) => prev.filter((c) => c.id !== id));
     startTransition(async () => {
       try {
         await deleteCampaign(id);
