@@ -15,6 +15,11 @@ export default auth((req) => {
   const { pathname } = req.nextUrl;
   const isAuthenticated = !!req.auth;
 
+  // Authenticated user on root → redirect to dashboard
+  if (pathname === "/" && isAuthenticated) {
+    return NextResponse.redirect(new URL("/dashboard", req.url));
+  }
+
   // Dashboard routes — require auth
   if (pathname.startsWith("/dashboard")) {
     if (!isAuthenticated) {
