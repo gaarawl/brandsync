@@ -26,6 +26,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         path: "/",
         secure: process.env.NODE_ENV === "production",
         maxAge: cookieMaxAge,
+        ...(process.env.NODE_ENV === "production" && {
+          domain: ".brandsync.fr",
+        }),
       },
     },
   },
