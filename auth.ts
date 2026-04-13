@@ -4,31 +4,27 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/lib/prisma";
 import { sendWelcomeEmail } from "@/lib/email";
 
-const cookieMaxAge = 30 * 24 * 60 * 60; // 30 jours
+const isSecure = process.env.NODE_ENV === "production";
+const SESSION_MAX_AGE = 30 * 24 * 60 * 60; // 30 days
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   trustHost: true,
   adapter: PrismaAdapter(prisma),
   session: {
     strategy: "jwt",
-    maxAge: cookieMaxAge,
-    updateAge: 24 * 60 * 60,
+    maxAge: SESSION_MAX_AGE,
   },
   cookies: {
     sessionToken: {
-      name:
-        process.env.NODE_ENV === "production"
-          ? "__Secure-authjs.session-token"
-          : "authjs.session-token",
+      name: isSecure
+        ? "__Secure-authjs.session-token"
+        : "authjs.session-token",
       options: {
         httpOnly: true,
         sameSite: "lax",
         path: "/",
-        secure: process.env.NODE_ENV === "production",
-        maxAge: cookieMaxAge,
-        ...(process.env.NODE_ENV === "production" && {
-          domain: ".brandsync.fr",
-        }),
+        secure: isSecure,
+        maxAge: SESSION_MAX_AGE,
       },
     },
   },

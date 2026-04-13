@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 import { Sparkles } from "lucide-react";
 
-// ── Set your launch date here ──
-const LAUNCH_DATE = new Date("2025-06-01T00:00:00");
+// ── Set your launch date here (midnight Paris time) ──
+const LAUNCH_DATE = new Date("2026-04-20T00:00:00+02:00");
 
 function getTimeLeft() {
   const diff = Math.max(0, LAUNCH_DATE.getTime() - Date.now());
@@ -21,13 +21,13 @@ function TimeBlock({ value, label }: { value: number; label: string }) {
     <div className="flex flex-col items-center">
       <div className="relative">
         <div className="absolute -inset-2 rounded-2xl bg-violet-500/20 blur-xl" />
-        <div className="relative flex h-20 w-20 sm:h-28 sm:w-28 items-center justify-center rounded-2xl border border-violet-500/30 bg-black/40 backdrop-blur-sm shadow-[0_0_40px_rgba(139,92,246,0.15)]">
-          <span className="text-3xl sm:text-5xl font-bold text-white tabular-nums">
+        <div className="relative flex h-16 w-16 sm:h-28 sm:w-28 items-center justify-center rounded-2xl border border-violet-500/30 bg-black/40 backdrop-blur-sm shadow-[0_0_40px_rgba(139,92,246,0.15)]">
+          <span className="text-2xl sm:text-5xl font-bold text-white tabular-nums">
             {String(value).padStart(2, "0")}
           </span>
         </div>
       </div>
-      <span className="mt-3 text-xs sm:text-sm font-medium uppercase tracking-widest text-violet-300/70">
+      <span className="mt-2 sm:mt-3 text-[10px] sm:text-sm font-medium uppercase tracking-widest text-violet-300/70">
         {label}
       </span>
     </div>
@@ -69,7 +69,7 @@ export default function ComingSoonPage() {
         </div>
 
         {/* Heading */}
-        <h1 className="mb-3 text-4xl sm:text-6xl font-bold text-white">
+        <h1 className="mb-3 text-3xl sm:text-6xl font-bold text-white">
           Bientôt{" "}
           <span className="bg-gradient-to-r from-violet-400 via-purple-400 to-violet-300 bg-clip-text text-transparent drop-shadow-[0_0_20px_rgba(139,92,246,0.5)]">
             disponible
@@ -81,14 +81,14 @@ export default function ComingSoonPage() {
         </p>
 
         {/* Countdown */}
-        <div className="flex items-center gap-4 sm:gap-8">
+        <div className="flex items-center gap-2 sm:gap-8">
           <TimeBlock value={time.days} label="Jours" />
-          <span className="text-3xl sm:text-5xl font-light text-violet-500/40 -mt-6">:</span>
+          <span className="text-xl sm:text-5xl font-light text-violet-500/40 -mt-4 sm:-mt-6">:</span>
           <TimeBlock value={time.hours} label="Heures" />
-          <span className="text-3xl sm:text-5xl font-light text-violet-500/40 -mt-6">:</span>
-          <TimeBlock value={time.minutes} label="Minutes" />
-          <span className="text-3xl sm:text-5xl font-light text-violet-500/40 -mt-6">:</span>
-          <TimeBlock value={time.seconds} label="Secondes" />
+          <span className="text-xl sm:text-5xl font-light text-violet-500/40 -mt-4 sm:-mt-6">:</span>
+          <TimeBlock value={time.minutes} label="Min" />
+          <span className="text-xl sm:text-5xl font-light text-violet-500/40 -mt-4 sm:-mt-6">:</span>
+          <TimeBlock value={time.seconds} label="Sec" />
         </div>
 
         {/* Newsletter placeholder — uncomment when ready */}
