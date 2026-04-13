@@ -22,6 +22,7 @@ import {
   Mail,
   Menu,
   X,
+  Star,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
@@ -188,14 +189,30 @@ export default function Sidebar({ user }: SidebarProps) {
             <img
               src={user.image}
               alt=""
-              className="h-8 w-8 rounded-full shrink-0 ring-2 ring-border-subtle"
+              className={cn(
+                "h-8 w-8 rounded-full shrink-0 ring-2",
+                user.plan === "business"
+                  ? "ring-amber-500/50"
+                  : user.plan === "pro"
+                  ? "ring-violet-500/50"
+                  : "ring-border-subtle"
+              )}
             />
           ) : (
             <div className="h-8 w-8 rounded-full bg-gradient-to-br from-accent to-accent-glow shrink-0 ring-2 ring-accent/20" />
           )}
           <div className="min-w-0">
-            <p className="text-xs font-medium text-text-primary truncate">
+            <p className={cn(
+              "text-xs font-medium truncate flex items-center gap-1",
+              user.plan === "business"
+                ? "text-amber-400 drop-shadow-[0_0_6px_rgba(245,158,11,0.5)]"
+                : user.plan === "pro"
+                ? "text-violet-400 drop-shadow-[0_0_6px_rgba(139,92,246,0.5)]"
+                : "text-text-primary"
+            )}>
               {user.name || "Utilisateur"}
+              {user.plan === "business" && <Star className="h-3 w-3 text-amber-400 fill-amber-400 shrink-0" />}
+              {user.plan === "pro" && <Star className="h-3 w-3 text-violet-400 fill-violet-400 shrink-0" />}
             </p>
             <p className="text-[10px] text-text-muted truncate">
               {user.email}
@@ -335,15 +352,31 @@ export default function Sidebar({ user }: SidebarProps) {
               <img
                 src={user.image}
                 alt=""
-                className="h-8 w-8 rounded-full shrink-0 ring-2 ring-border-subtle"
+                className={cn(
+                  "h-8 w-8 rounded-full shrink-0 ring-2",
+                  user.plan === "business"
+                    ? "ring-amber-500/50"
+                    : user.plan === "pro"
+                    ? "ring-violet-500/50"
+                    : "ring-border-subtle"
+                )}
               />
             ) : (
               <div className="h-8 w-8 rounded-full bg-gradient-to-br from-accent to-accent-glow shrink-0 ring-2 ring-accent/20" />
             )}
             {!collapsed && (
               <div className="min-w-0">
-                <p className="text-xs font-medium text-text-primary truncate">
+                <p className={cn(
+                  "text-xs font-medium truncate flex items-center gap-1",
+                  user.plan === "business"
+                    ? "text-amber-400 drop-shadow-[0_0_6px_rgba(245,158,11,0.5)]"
+                    : user.plan === "pro"
+                    ? "text-violet-400 drop-shadow-[0_0_6px_rgba(139,92,246,0.5)]"
+                    : "text-text-primary"
+                )}>
                   {user.name || "Utilisateur"}
+                  {user.plan === "business" && <Star className="h-3 w-3 text-amber-400 fill-amber-400 shrink-0" />}
+                  {user.plan === "pro" && <Star className="h-3 w-3 text-violet-400 fill-violet-400 shrink-0" />}
                 </p>
                 <p className="text-[10px] text-text-muted truncate">
                   {user.email}

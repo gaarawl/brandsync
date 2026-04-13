@@ -1,8 +1,22 @@
 import { auth } from "@/auth";
+import { prisma } from "@/lib/prisma";
+import { unstable_cache } from "next/cache";
 import { getCollaborations } from "@/lib/actions/collaborations";
 import { getPayments } from "@/lib/actions/payments";
 import { getBrands } from "@/lib/actions/brands";
 import Topbar from "@/components/dashboard/topbar";
+
+const getUserPlan = unstable_cache(
+  async (userId: string) => {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { plan: true },
+    });
+    return user?.plan || "free";
+  },
+  ["user-plan"],
+  { revalidate: 300, tags: ["user-plan"] }
+);
 import StatsGrid from "@/components/dashboard/stats-grid";
 import RevenueChart from "@/components/dashboard/revenue-chart";
 import CollabsList from "@/components/dashboard/collabs-list";
@@ -17,10 +31,11 @@ export default async function DashboardPage() {
   const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
   const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
 
-  const [collaborations, allPayments, brands] = await Promise.all([
+  const [collaborations, allPayments, brands, plan] = await Promise.all([
     getCollaborations(),
     getPayments(),
     getBrands(),
+    session?.user?.id ? getUserPlan(session.user.id) : "free",
   ]);
 
   const emailsSent = 0;
@@ -293,7 +308,7 @@ export default async function DashboardPage() {
 
   return (
     <>
-      <Topbar userName={session?.user?.name} notifications={notifications} />
+      <Topbar userName={session?.user?.name} userPlan={plan} notifications={notifications} />
 
       <main className="flex-1 overflow-y-auto p-6 space-y-6 bg-radial-top">
         <StatsGrid stats={stats} />
