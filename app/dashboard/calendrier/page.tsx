@@ -15,7 +15,7 @@ export default async function CalendrierPage() {
       id: `collab-${c.id}`,
       title: `${c.deliverables} — ${c.brand.name}`,
       type: "Livrable" as const,
-      date: c.deadline!.toISOString(),
+      date: new Date(c.deadline!).toISOString(),
       notes: `${c.platform} · ${c.status}`,
       isDeadline: true,
     }));
@@ -25,7 +25,7 @@ export default async function CalendrierPage() {
       id: e.id,
       title: e.title,
       type: e.type,
-      date: e.date.toISOString(),
+      date: new Date(e.date).toISOString(),
       notes: e.notes,
       isDeadline: false,
     })),
