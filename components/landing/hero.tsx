@@ -110,7 +110,7 @@ export default function Hero() {
             animate="visible"
             className="mt-8 flex flex-wrap items-center justify-center gap-6 text-sm text-text-muted"
           >
-            {["Aucune carte requise", "14 jours offerts", "Annulation à tout moment"].map(
+            {["Aucune carte requise", "Plan gratuit inclus", "Annulation à tout moment"].map(
               (text) => (
                 <span key={text} className="flex items-center gap-2">
                   <CircleCheck className="h-4 w-4 text-accent" />

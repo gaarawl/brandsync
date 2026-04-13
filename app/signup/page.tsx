@@ -7,7 +7,7 @@ import Link from "next/link";
 
 export default function SignupPage() {
   const benefits = [
-    "14 jours d'essai gratuit",
+    "Plan gratuit inclus",
     "Aucune carte bancaire requise",
     "Accès immédiat au dashboard",
   ];
