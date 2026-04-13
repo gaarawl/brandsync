@@ -1,7 +1,6 @@
+import { auth } from "@/auth";
 import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
 
-// Pages that bypass the coming-soon wall
 const PUBLIC_PATHS = [
   "/coming-soon",
   "/api/",
@@ -12,16 +11,14 @@ const PUBLIC_PATHS = [
   "/favicon",
 ];
 
-export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
-  const token =
-    request.cookies.get("authjs.session-token") ||
-    request.cookies.get("__Secure-authjs.session-token");
+export default auth((req) => {
+  const { pathname } = req.nextUrl;
+  const isAuthenticated = !!req.auth;
 
   // Dashboard routes — require auth
   if (pathname.startsWith("/dashboard")) {
-    if (!token) {
-      return NextResponse.redirect(new URL("/login", request.url));
+    if (!isAuthenticated) {
+      return NextResponse.redirect(new URL("/login", req.url));
     }
     return NextResponse.next();
   }
@@ -32,8 +29,8 @@ export function middleware(request: NextRequest) {
   }
 
   // Secret bypass: ?preview=brandsync sets a cookie to skip coming-soon
-  if (request.nextUrl.searchParams.get("preview") === "brandsync") {
-    const res = NextResponse.redirect(new URL(pathname, request.url));
+  if (req.nextUrl.searchParams.get("preview") === "brandsync") {
+    const res = NextResponse.redirect(new URL(pathname, req.url));
     res.cookies.set("preview-bypass", "1", {
       maxAge: 30 * 24 * 60 * 60,
       path: "/",
@@ -42,13 +39,13 @@ export function middleware(request: NextRequest) {
   }
 
   // If user has bypass cookie or is logged in, let them through
-  if (request.cookies.get("preview-bypass") || token) {
+  if (req.cookies.get("preview-bypass") || isAuthenticated) {
     return NextResponse.next();
   }
 
   // Everyone else → coming soon
-  return NextResponse.redirect(new URL("/coming-soon", request.url));
-}
+  return NextResponse.redirect(new URL("/coming-soon", req.url));
+});
 
 export const config = {
   matcher: ["/((?!_next/static|_next/image|favicon.ico|icon.svg).*)"],
