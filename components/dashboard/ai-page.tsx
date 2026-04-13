@@ -202,11 +202,13 @@ export default function AIChatPage({ summary }: { summary: Summary }) {
                 {usage.remaining}/{usage.limit} messages
               </span>
               <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded ${
-                usage.plan === "pro"
+                usage.plan === "business"
+                  ? "bg-amber-500/15 text-amber-500"
+                  : usage.plan === "pro"
                   ? "bg-accent/15 text-accent"
                   : "bg-text-muted/15 text-text-muted"
               }`}>
-                {usage.plan === "pro" ? "PRO" : "FREE"}
+                {usage.plan === "business" ? "BUSINESS" : usage.plan === "pro" ? "PRO" : "FREE"}
               </span>
             </div>
           </div>

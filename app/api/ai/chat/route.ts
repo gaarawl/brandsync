@@ -8,8 +8,9 @@ const anthropic = new Anthropic({
 });
 
 const PLAN_LIMITS: Record<string, number> = {
-  free: 10,   // 10 messages / jour
-  pro: 200,   // 200 messages / jour
+  free: 10,      // 10 messages / jour
+  pro: 200,      // 200 messages / jour
+  business: 500, // 500 messages / jour
 };
 
 export async function POST(req: NextRequest) {

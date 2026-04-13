@@ -293,27 +293,31 @@ export default function SettingsClient({ user }: Props) {
         <div className="flex items-center justify-between rounded-lg bg-bg-primary px-4 py-4 border border-border-subtle">
           <div className="flex items-center gap-3">
             <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${
-              user.plan === "pro" ? "bg-accent/15" : "bg-text-muted/10"
+              user.plan === "business" ? "bg-amber-500/15" : user.plan === "pro" ? "bg-accent/15" : "bg-text-muted/10"
             }`}>
               <Sparkles className={`h-5 w-5 ${
-                user.plan === "pro" ? "text-accent" : "text-text-muted"
+                user.plan === "business" ? "text-amber-500" : user.plan === "pro" ? "text-accent" : "text-text-muted"
               }`} />
             </div>
             <div>
               <div className="flex items-center gap-2">
                 <p className="text-sm font-medium text-text-primary">
-                  Plan {user.plan === "pro" ? "Pro" : "Free"}
+                  Plan {user.plan === "business" ? "Business" : user.plan === "pro" ? "Pro" : "Free"}
                 </p>
                 <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${
-                  user.plan === "pro"
+                  user.plan === "business"
+                    ? "bg-amber-500/15 text-amber-500"
+                    : user.plan === "pro"
                     ? "bg-accent/15 text-accent"
                     : "bg-text-muted/15 text-text-muted"
                 }`}>
-                  {user.plan === "pro" ? "PRO" : "FREE"}
+                  {user.plan === "business" ? "BUSINESS" : user.plan === "pro" ? "PRO" : "FREE"}
                 </span>
               </div>
               <p className="text-xs text-text-muted mt-0.5">
-                {user.plan === "pro"
+                {user.plan === "business"
+                  ? "500 messages IA/jour, toutes les fonctionnalit\u00E9s"
+                  : user.plan === "pro"
                   ? "200 messages IA/jour, toutes les fonctionnalit\u00E9s"
                   : "10 messages IA/jour"}
               </p>
@@ -322,7 +326,7 @@ export default function SettingsClient({ user }: Props) {
         </div>
 
         <div className="flex items-center gap-3">
-          {user.plan === "pro" ? (
+          {user.plan === "business" || user.plan === "pro" ? (
             <button
               onClick={async () => {
                 const res = await fetch("/api/stripe/portal", { method: "POST" });

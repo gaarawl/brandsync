@@ -10,6 +10,7 @@ const anthropic = new Anthropic({
 const PLAN_LIMITS: Record<string, number> = {
   free: 10,
   pro: 200,
+  business: 500,
 };
 
 export async function POST(req: NextRequest) {
