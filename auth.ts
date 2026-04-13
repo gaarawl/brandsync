@@ -4,13 +4,30 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/lib/prisma";
 import { sendWelcomeEmail } from "@/lib/email";
 
+const cookieMaxAge = 30 * 24 * 60 * 60; // 30 jours
+
 export const { handlers, signIn, signOut, auth } = NextAuth({
   trustHost: true,
   adapter: PrismaAdapter(prisma),
   session: {
     strategy: "jwt",
-    maxAge: 30 * 24 * 60 * 60, // 30 jours
-    updateAge: 24 * 60 * 60, // Refresh token toutes les 24h
+    maxAge: cookieMaxAge,
+    updateAge: 24 * 60 * 60,
+  },
+  cookies: {
+    sessionToken: {
+      name:
+        process.env.NODE_ENV === "production"
+          ? "__Secure-authjs.session-token"
+          : "authjs.session-token",
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+        maxAge: cookieMaxAge,
+      },
+    },
   },
   providers: [
     Google({
