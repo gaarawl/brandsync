@@ -163,10 +163,11 @@ export async function sendDeadlineReminderEmail(
 // ─── Campaign email (envoyé par le créateur via BrandSync) ─────────
 export async function sendCampaignEmail(
   to: string,
-  data: { subject: string; body: string; userName: string }
+  data: { subject: string; body: string; userName: string; userEmail?: string }
 ) {
   const result = await getResend().emails.send({
-    from: FROM,
+    from: `${data.userName} via BrandSync <noreply@brandsync.fr>`,
+    ...(data.userEmail && { replyTo: data.userEmail }),
     to,
     subject: data.subject,
     html: campaignLayout(data.body, data.userName),

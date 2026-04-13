@@ -292,6 +292,7 @@ export async function sendCampaign(id: string) {
         subject: campaign.subject,
         body: campaign.body,
         userName: session.user.name || "Un créateur",
+        userEmail: session.user.email || undefined,
       });
 
       // Resend returns { data, error } — check for errors
