@@ -4,6 +4,7 @@ import { unstable_cache } from "next/cache";
 import { getCollaborations } from "@/lib/actions/collaborations";
 import { getPayments } from "@/lib/actions/payments";
 import { getBrands } from "@/lib/actions/brands";
+import { getEvents } from "@/lib/actions/events";
 import Topbar from "@/components/dashboard/topbar";
 
 const getUserPlan = unstable_cache(
@@ -31,11 +32,12 @@ export default async function DashboardPage() {
   const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
   const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
 
-  const [collaborations, allPayments, brands, plan] = await Promise.all([
+  const [collaborations, allPayments, brands, plan, events] = await Promise.all([
     getCollaborations(),
     getPayments(),
     getBrands(),
     session?.user?.id ? getUserPlan(session.user.id) : "free",
+    getEvents(),
   ]);
 
   const emailsSent = 0;
@@ -139,19 +141,35 @@ export default async function DashboardPage() {
     };
   });
 
-  // ── Calendar events ──
-  const calendarEvents = upcomingDeadlines
-    .sort((a, b) => new Date(a.deadline!).getTime() - new Date(b.deadline!).getTime())
-    .slice(0, 4)
-    .map((c) => {
-      const d = new Date(c.deadline!);
+  // ── Calendar events (deadlines + custom events) ──
+  const deadlineItems = upcomingDeadlines.map((c) => {
+    const d = new Date(c.deadline!);
+    return {
+      day: d.getDate().toString(),
+      month: d.toLocaleDateString("fr-FR", { month: "short" }).toUpperCase(),
+      label: c.deliverables,
+      sub: c.brand.name,
+      sortDate: d,
+    };
+  });
+
+  const eventItems = events
+    .filter((e) => new Date(e.date) >= now)
+    .map((e) => {
+      const d = new Date(e.date);
       return {
         day: d.getDate().toString(),
         month: d.toLocaleDateString("fr-FR", { month: "short" }).toUpperCase(),
-        label: c.deliverables,
-        sub: c.brand.name,
+        label: e.title,
+        sub: e.type,
+        sortDate: d,
       };
     });
+
+  const calendarEvents = [...deadlineItems, ...eventItems]
+    .sort((a, b) => a.sortDate.getTime() - b.sortDate.getTime())
+    .slice(0, 4)
+    .map(({ sortDate, ...rest }) => rest);
 
   // ── Recent payments ──
   const recentPayments = allPayments.slice(0, 4).map((p) => ({
