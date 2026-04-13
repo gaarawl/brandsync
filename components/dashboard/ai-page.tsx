@@ -15,6 +15,8 @@ import {
   FileText,
   MessageSquare,
 } from "lucide-react";
+import AIRateCard from "@/components/dashboard/ai-rate-card";
+import AIBriefParser from "@/components/dashboard/ai-brief-parser";
 
 type Message = {
   role: "user" | "assistant";
@@ -73,7 +75,16 @@ const quickActions = [
   },
 ];
 
+type TabType = "chat" | "tarifs" | "brief";
+
+const tabs: { key: TabType; label: string; icon: typeof MessageSquare }[] = [
+  { key: "chat", label: "Chat", icon: MessageSquare },
+  { key: "tarifs", label: "Tarifs", icon: DollarSign },
+  { key: "brief", label: "Brief", icon: FileText },
+];
+
 export default function AIChatPage({ summary }: { summary: Summary }) {
+  const [activeTab, setActiveTab] = useState<TabType>("chat");
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -177,7 +188,7 @@ export default function AIChatPage({ summary }: { summary: Summary }) {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            {messages.length > 0 && (
+            {activeTab === "chat" && messages.length > 0 && (
               <button
                 onClick={() => setMessages([])}
                 className="flex items-center gap-2 rounded-lg border border-border-subtle px-3 py-2 text-xs text-text-secondary hover:bg-bg-elevated transition-colors"
@@ -200,10 +211,34 @@ export default function AIChatPage({ summary }: { summary: Summary }) {
             </div>
           </div>
         </div>
+
+        {/* Tabs */}
+        <div className="flex items-center gap-1 mt-4">
+          {tabs.map((tab) => (
+            <button
+              key={tab.key}
+              onClick={() => setActiveTab(tab.key)}
+              className={`flex items-center gap-2 rounded-lg px-3.5 py-2 text-xs font-medium transition-colors ${
+                activeTab === tab.key
+                  ? "bg-accent/10 text-accent"
+                  : "text-text-muted hover:text-text-primary hover:bg-bg-elevated"
+              }`}
+            >
+              <tab.icon className="h-3.5 w-3.5" />
+              {tab.label}
+            </button>
+          ))}
+        </div>
       </div>
 
+      {/* Tarifs tab */}
+      {activeTab === "tarifs" && <AIRateCard />}
+
+      {/* Brief tab */}
+      {activeTab === "brief" && <AIBriefParser />}
+
       {/* Chat area */}
-      <div className="flex-1 overflow-y-auto">
+      {activeTab === "chat" && <div className="flex-1 overflow-y-auto">
         {messages.length === 0 ? (
           /* Empty state */
           <div className="flex flex-col items-center justify-center h-full px-6 py-10">
@@ -319,10 +354,10 @@ export default function AIChatPage({ summary }: { summary: Summary }) {
             <div ref={messagesEndRef} />
           </div>
         )}
-      </div>
+      </div>}
 
       {/* Input */}
-      <div className="border-t border-border-subtle px-6 py-4">
+      {activeTab === "chat" && <div className="border-t border-border-subtle px-6 py-4">
         <div className="max-w-3xl mx-auto">
           <div className="flex items-end gap-3 rounded-xl border border-border-subtle bg-bg-surface px-4 py-3 focus-within:border-accent/50 transition-colors">
             <textarea
@@ -347,7 +382,7 @@ export default function AIChatPage({ summary }: { summary: Summary }) {
             Entr&eacute;e pour envoyer &middot; Shift+Entr&eacute;e pour un saut de ligne
           </p>
         </div>
-      </div>
+      </div>}
     </main>
   );
 }

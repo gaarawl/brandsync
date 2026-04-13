@@ -66,6 +66,46 @@ export async function createCollaboration(formData: FormData) {
   revalidatePath("/dashboard");
 }
 
+export async function createCollaborationFromParsed(data: {
+  brandId: string;
+  platform: string;
+  deliverables: string;
+  amount: number;
+  deadline: string | null;
+  notes: string | null;
+}) {
+  const session = await auth();
+  if (!session?.user?.id) throw new Error("Non autorisé");
+
+  const collab = await prisma.collaboration.create({
+    data: {
+      platform: data.platform,
+      deliverables: data.deliverables,
+      status: "lead",
+      amount: data.amount || 0,
+      deadline: data.deadline ? new Date(data.deadline) : null,
+      notes: data.notes || null,
+      userId: session.user.id,
+      brandId: data.brandId,
+    },
+    include: { brand: true },
+  });
+
+  if (session.user.email) {
+    sendNewCollabEmail(session.user.email, {
+      brandName: collab.brand.name,
+      platform: collab.platform,
+      amount: collab.amount,
+    }).catch((e) => console.error("Email error:", e));
+  }
+
+  revalidateTag("collaborations");
+  revalidatePath("/dashboard/collaborations");
+  revalidatePath("/dashboard");
+
+  return collab;
+}
+
 export async function updateCollaboration(id: string, formData: FormData) {
   const session = await auth();
   if (!session?.user?.id) throw new Error("Non autorisé");

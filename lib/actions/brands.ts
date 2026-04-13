@@ -79,6 +79,39 @@ export async function updateBrand(id: string, formData: FormData) {
   revalidatePath("/dashboard");
 }
 
+export async function createBrandAndReturn(data: {
+  name: string;
+  contact?: string | null;
+  email?: string | null;
+}) {
+  const session = await auth();
+  if (!session?.user?.id) throw new Error("Non autorisé");
+
+  const existing = await prisma.brand.findFirst({
+    where: {
+      userId: session.user.id,
+      name: { equals: data.name, mode: "insensitive" },
+    },
+  });
+
+  if (existing) return existing;
+
+  const brand = await prisma.brand.create({
+    data: {
+      name: data.name,
+      contact: data.contact || null,
+      email: data.email || null,
+      userId: session.user.id,
+    },
+  });
+
+  revalidateTag("brands");
+  revalidatePath("/dashboard/marques");
+  revalidatePath("/dashboard");
+
+  return brand;
+}
+
 export async function deleteBrand(id: string) {
   const session = await auth();
   if (!session?.user?.id) throw new Error("Non autorisé");
