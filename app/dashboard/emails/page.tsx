@@ -1,11 +1,7 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import EmailsPage from "@/components/dashboard/emails-page";
-
-const PLAN_LIMITS = {
-  free: { dailyEmails: 5, maxRecipients: 3 },
-  pro: { dailyEmails: 50, maxRecipients: 10 },
-} as const;
+import { getPlanLimits } from "@/lib/plan-limits";
 
 export default async function EmailsDashboard() {
   const session = await auth();
@@ -14,7 +10,7 @@ export default async function EmailsDashboard() {
   const todayStart = new Date();
   todayStart.setHours(0, 0, 0, 0);
 
-  const [contacts, campaigns, brands, user, sentToday] = await Promise.all([
+  const [contacts, campaigns, brands, user, sentToday, emailSync] = await Promise.all([
     userId
       ? prisma.contact.findMany({
           where: { userId },
@@ -51,10 +47,16 @@ export default async function EmailsDashboard() {
           },
         })
       : 0,
+    userId
+      ? prisma.emailSync.findUnique({
+          where: { userId },
+          select: { enabled: true, lastSyncAt: true },
+        })
+      : null,
   ]);
 
-  const plan = (user?.plan || "free") as keyof typeof PLAN_LIMITS;
-  const limits = PLAN_LIMITS[plan] || PLAN_LIMITS.free;
+  const plan = user?.plan || "free";
+  const limits = getPlanLimits(plan);
 
   return (
     <EmailsPage
@@ -67,6 +69,12 @@ export default async function EmailsDashboard() {
         dailyLimit: limits.dailyEmails,
         maxRecipients: limits.maxRecipients,
         plan,
+      }}
+      sync={{
+        enabled: emailSync?.enabled || false,
+        lastSyncAt: emailSync?.lastSyncAt?.toISOString() || null,
+        canSync: limits.emailSync,
+        syncIntervalMinutes: limits.syncIntervalMinutes,
       }}
     />
   );

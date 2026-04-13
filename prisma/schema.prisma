@@ -47,6 +47,7 @@ model User {
   contacts      Contact[]
   emailCampaigns EmailCampaign[]
   links         Link[]
+  emailSync     EmailSync?
 }
 
 // ── NextAuth (obligatoire) ──
@@ -238,4 +239,17 @@ model Link {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, position])
+}
+
+// ── Sync Gmail ──
+model EmailSync {
+  id            String    @id @default(cuid())
+  lastSyncAt    DateTime?
+  lastMessageId String?
+  enabled       Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  userId        String    @unique
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

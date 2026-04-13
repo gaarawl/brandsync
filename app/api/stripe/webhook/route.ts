@@ -2,6 +2,24 @@ import { prisma } from "@/lib/prisma";
 import { getStripe } from "@/lib/stripe";
 import { NextRequest, NextResponse } from "next/server";
 
+const PRO_PRICE_IDS = [
+  process.env.STRIPE_PRO_MONTHLY_PRICE_ID,
+  process.env.STRIPE_PRO_YEARLY_PRICE_ID,
+].filter(Boolean);
+
+const BUSINESS_PRICE_IDS = [
+  process.env.STRIPE_BUSINESS_MONTHLY_PRICE_ID,
+  process.env.STRIPE_BUSINESS_YEARLY_PRICE_ID,
+].filter(Boolean);
+
+function getPlanFromSubscription(subscription: any): string {
+  const priceId = subscription.items?.data?.[0]?.price?.id;
+  if (priceId && BUSINESS_PRICE_IDS.includes(priceId)) return "business";
+  if (priceId && PRO_PRICE_IDS.includes(priceId)) return "pro";
+  // Default: if we can't detect, keep pro (backwards compat)
+  return "pro";
+}
+
 export async function POST(req: NextRequest) {
   const body = await req.text();
   const signature = req.headers.get("stripe-signature")!;
@@ -28,9 +46,22 @@ export async function POST(req: NextRequest) {
       const session = event.data.object;
       const customerId = session.customer as string;
 
+      // Retrieve subscription to detect plan
+      let plan = "pro";
+      if (session.subscription) {
+        try {
+          const subscription = await getStripe().subscriptions.retrieve(
+            session.subscription as string
+          );
+          plan = getPlanFromSubscription(subscription);
+        } catch {
+          // Fallback to pro
+        }
+      }
+
       await prisma.user.updateMany({
         where: { stripeCustomerId: customerId },
-        data: { plan: "pro" },
+        data: { plan },
       });
       break;
     }
@@ -40,9 +71,11 @@ export async function POST(req: NextRequest) {
       const customerId = subscription.customer as string;
       const status = subscription.status;
 
+      const plan = status === "active" ? getPlanFromSubscription(subscription) : "free";
+
       await prisma.user.updateMany({
         where: { stripeCustomerId: customerId },
-        data: { plan: status === "active" ? "pro" : "free" },
+        data: { plan },
       });
       break;
     }

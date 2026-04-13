@@ -24,16 +24,16 @@ const plans = [
       { text: "10 messages IA / jour", included: true },
       { text: "Gestion des marques", included: true },
       { text: "Gestion des collaborations", included: true },
-      { text: "Calendrier", included: true },
-      { text: "Export PDF", included: true },
-      { text: "Export CSV", included: true },
-      { text: "Statistiques de base", included: true },
-      { text: "200 messages IA / jour", included: false },
-      { text: "Statistiques avanc\u00E9es", included: false },
+      { text: "Calendrier & statistiques", included: true },
+      { text: "Link-in-Bio public", included: true },
+      { text: "5 emails / jour", included: true },
+      { text: "Sync Gmail auto", included: false },
+      { text: "200+ messages IA / jour", included: false },
       { text: "Support prioritaire", included: false },
     ],
     cta: "Plan actuel",
     popular: false,
+    tier: "free",
   },
   {
     name: "Pro",
@@ -41,18 +41,37 @@ const plans = [
     description: "Pour les cr\u00E9ateurs s\u00E9rieux",
     features: [
       { text: "200 messages IA / jour", included: true },
-      { text: "Gestion des marques", included: true },
-      { text: "Gestion des collaborations", included: true },
-      { text: "Calendrier", included: true },
-      { text: "Export PDF", included: true },
-      { text: "Export CSV", included: true },
+      { text: "50 emails / jour", included: true },
       { text: "Statistiques avanc\u00E9es", included: true },
       { text: "Assistant IA avanc\u00E9", included: true },
+      { text: "Link-in-Bio avec analytics", included: true },
+      { text: "Sync Gmail auto (toutes les 3h)", included: true },
+      { text: "D\u00E9tection collabs par email", included: true },
       { text: "Support prioritaire", included: true },
-      { text: "Nouvelles fonctionnalit\u00E9s en avant-premi\u00E8re", included: true },
+      { text: "Nouvelles features en avant-premi\u00E8re", included: true },
     ],
     cta: "Commencer",
     popular: true,
+    tier: "pro",
+  },
+  {
+    name: "Business",
+    price: { monthly: "50", yearly: "40" },
+    description: "Pour les top cr\u00E9ateurs",
+    features: [
+      { text: "500 messages IA / jour", included: true },
+      { text: "200 emails / jour", included: true },
+      { text: "Tout le plan Pro inclus", included: true },
+      { text: "Sync Gmail auto (toutes les 30min)", included: true },
+      { text: "D\u00E9tection collabs temps r\u00E9el", included: true },
+      { text: "50 destinataires / campagne", included: true },
+      { text: "Support VIP prioritaire", included: true },
+      { text: "Acc\u00E8s anticipé nouvelles features", included: true },
+      { text: "Badge Cr\u00E9ateur V\u00E9rifi\u00E9", included: true },
+    ],
+    cta: "Passer Business",
+    popular: false,
+    tier: "business",
   },
 ];
 
@@ -67,16 +86,24 @@ export default function PricingPage() {
   const [billing, setBilling] = useState<"monthly" | "yearly">("monthly");
   const [loading, setLoading] = useState(false);
 
-  const handleSubscribe = async (plan: string) => {
-    if (plan === "Free") return;
+  const handleSubscribe = async (tier: string) => {
+    if (tier === "free") return;
     setLoading(true);
 
-    const priceId =
-      billing === "monthly"
-        ? process.env.NEXT_PUBLIC_STRIPE_MONTHLY_PRICE_ID ||
-          "price_1TL3RuLVSEf30cSA5RBI6eKD"
-        : process.env.NEXT_PUBLIC_STRIPE_YEARLY_PRICE_ID ||
-          "price_1TL3RuLVSEf30cSAxbkyUNnN";
+    let priceId: string;
+    if (tier === "business") {
+      priceId =
+        billing === "monthly"
+          ? process.env.NEXT_PUBLIC_STRIPE_BUSINESS_MONTHLY_PRICE_ID || ""
+          : process.env.NEXT_PUBLIC_STRIPE_BUSINESS_YEARLY_PRICE_ID || "";
+    } else {
+      priceId =
+        billing === "monthly"
+          ? process.env.NEXT_PUBLIC_STRIPE_MONTHLY_PRICE_ID ||
+            "price_1TL3RuLVSEf30cSA5RBI6eKD"
+          : process.env.NEXT_PUBLIC_STRIPE_YEARLY_PRICE_ID ||
+            "price_1TL3RuLVSEf30cSAxbkyUNnN";
+    }
 
     try {
       const res = await fetch("/api/stripe/checkout", {
@@ -179,7 +206,7 @@ export default function PricingPage() {
         </motion.div>
 
         {/* Plans */}
-        <div className="grid gap-6 md:grid-cols-2 max-w-3xl mx-auto mb-16">
+        <div className="grid gap-6 md:grid-cols-3 max-w-5xl mx-auto mb-16">
           {plans.map((plan, i) => (
             <motion.div
               key={plan.name}
@@ -189,12 +216,19 @@ export default function PricingPage() {
               className={`relative rounded-2xl border p-7 ${
                 plan.popular
                   ? "border-accent bg-bg-surface shadow-lg shadow-accent/5"
+                  : plan.tier === "business"
+                  ? "border-amber-500/50 bg-bg-surface shadow-lg shadow-amber-500/5"
                   : "border-border-subtle bg-bg-surface"
               }`}
             >
               {plan.popular && (
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-accent px-3 py-0.5 text-[11px] font-medium text-bg-primary">
-                  Populaire
+                  Le plus choisi
+                </div>
+              )}
+              {plan.tier === "business" && (
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-amber-500 px-3 py-0.5 text-[11px] font-medium text-black">
+                  Premium
                 </div>
               )}
 
@@ -218,57 +252,59 @@ export default function PricingPage() {
                       {plan.price[billing]}&euro;
                     </motion.span>
                   </AnimatePresence>
-                  {plan.name !== "Free" && (
+                  {plan.tier !== "free" && (
                     <span className="text-sm text-text-muted">/mois</span>
                   )}
-                  {plan.name === "Pro" && billing === "monthly" && (
+                  {plan.tier !== "free" && billing === "monthly" && (
                     <span className="rounded-full bg-green-500/15 text-green-400 px-2.5 py-0.5 text-[10px] font-semibold">
                       -50% le 1er mois
                     </span>
                   )}
-                  {plan.name === "Pro" && billing === "yearly" && (
+                  {plan.tier !== "free" && billing === "yearly" && (
                     <span className="rounded-full bg-green-500/15 text-green-400 px-2.5 py-0.5 text-[10px] font-semibold">
-                      -33% la 1re année
+                      -20%
                     </span>
                   )}
                 </div>
                 <AnimatePresence>
-                  {plan.name === "Pro" && billing === "monthly" && (
+                  {plan.tier !== "free" && billing === "monthly" && (
                     <motion.p
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: "auto" }}
                       exit={{ opacity: 0, height: 0 }}
                       className="text-xs text-green-400/80 mt-1"
                     >
-                      4.99&euro; le premier mois, puis 9.99&euro;/mois
+                      {plan.tier === "pro" ? "4.99" : "25"}&euro; le premier mois, puis {plan.price.monthly}&euro;/mois
                     </motion.p>
                   )}
-                  {plan.name === "Pro" && billing === "yearly" && (
+                  {plan.tier !== "free" && billing === "yearly" && (
                     <motion.p
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: "auto" }}
                       exit={{ opacity: 0, height: 0 }}
                       className="text-xs text-green-400/80 mt-1"
                     >
-                      53.53&euro; la 1&egrave;re ann&eacute;e (-33%), puis 79.90&euro;/an
+                      {plan.price.yearly}&euro;/mois factur&eacute; annuellement
                     </motion.p>
                   )}
                 </AnimatePresence>
               </div>
 
-              {plan.popular ? (
+              {plan.tier !== "free" ? (
                 <button
-                  onClick={() => handleSubscribe(plan.name)}
+                  onClick={() => handleSubscribe(plan.tier)}
                   disabled={loading}
-                  className="group relative w-full overflow-hidden rounded-xl py-3.5 text-sm font-semibold mb-6 bg-gradient-to-b from-[#a78bfa] to-[#7c3aed] text-white disabled:opacity-50 shadow-[0_0_25px_rgba(139,92,246,0.5),0_0_60px_rgba(139,92,246,0.2)]"
+                  className={`group relative w-full overflow-hidden rounded-xl py-3.5 text-sm font-semibold mb-6 text-white disabled:opacity-50 ${
+                    plan.tier === "business"
+                      ? "bg-gradient-to-b from-[#f59e0b] to-[#d97706] shadow-[0_0_25px_rgba(245,158,11,0.4),0_0_60px_rgba(245,158,11,0.15)]"
+                      : "bg-gradient-to-b from-[#a78bfa] to-[#7c3aed] shadow-[0_0_25px_rgba(139,92,246,0.5),0_0_60px_rgba(139,92,246,0.2)]"
+                  }`}
                 >
-                  {/* Inner white highlight */}
                   <span className="absolute inset-0 rounded-xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.3)]" />
-                  {/* Outer glow - intensifies on hover */}
-                  <span className="absolute -inset-2 rounded-2xl bg-accent/25 blur-xl opacity-70 group-hover:opacity-100 group-hover:bg-accent/35 transition-all duration-500" />
-                  {/* White top glow */}
+                  <span className={`absolute -inset-2 rounded-2xl blur-xl opacity-70 group-hover:opacity-100 transition-all duration-500 ${
+                    plan.tier === "business" ? "bg-amber-500/25 group-hover:bg-amber-500/35" : "bg-accent/25 group-hover:bg-accent/35"
+                  }`} />
                   <span className="absolute inset-x-4 -top-px h-px bg-gradient-to-r from-transparent via-white/60 to-transparent" />
-                  {/* Shimmer sweep on hover */}
                   <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out bg-gradient-to-r from-transparent via-white/30 to-transparent" />
                   <span className="relative z-10">
                     {loading ? "Redirection..." : plan.cta}

@@ -3,10 +3,21 @@ import { prisma } from "@/lib/prisma";
 import { getStripe } from "@/lib/stripe";
 import { NextRequest, NextResponse } from "next/server";
 
-const MONTHLY_PRICE_ID =
+const PRO_MONTHLY_PRICE_ID =
   process.env.STRIPE_PRO_MONTHLY_PRICE_ID || "price_1TL3RuLVSEf30cSA5RBI6eKD";
-const YEARLY_PRICE_ID =
+const PRO_YEARLY_PRICE_ID =
   process.env.STRIPE_PRO_YEARLY_PRICE_ID || "price_1TL3RuLVSEf30cSAxbkyUNnN";
+const BUSINESS_MONTHLY_PRICE_ID =
+  process.env.STRIPE_BUSINESS_MONTHLY_PRICE_ID || "";
+const BUSINESS_YEARLY_PRICE_ID =
+  process.env.STRIPE_BUSINESS_YEARLY_PRICE_ID || "";
+
+const ALL_PRICE_IDS = [
+  PRO_MONTHLY_PRICE_ID,
+  PRO_YEARLY_PRICE_ID,
+  BUSINESS_MONTHLY_PRICE_ID,
+  BUSINESS_YEARLY_PRICE_ID,
+].filter(Boolean);
 
 export async function POST(req: NextRequest) {
   const session = await auth();
@@ -36,9 +47,14 @@ export async function POST(req: NextRequest) {
 
   const origin = req.headers.get("origin") || "http://localhost:3000";
 
+  // Validate price ID
+  if (!ALL_PRICE_IDS.includes(priceId)) {
+    return NextResponse.json({ error: "Prix invalide" }, { status: 400 });
+  }
+
   // Check if user is eligible for first-time promo
-  const isMonthly = priceId === MONTHLY_PRICE_ID;
-  const isYearly = priceId === YEARLY_PRICE_ID;
+  const isMonthly = priceId === PRO_MONTHLY_PRICE_ID || priceId === BUSINESS_MONTHLY_PRICE_ID;
+  const isYearly = priceId === PRO_YEARLY_PRICE_ID || priceId === BUSINESS_YEARLY_PRICE_ID;
   const eligibleForPromo = (isMonthly || isYearly) && !user?.usedPromotion;
 
   // Create or get the appropriate coupon
