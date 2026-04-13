@@ -1,5 +1,5 @@
-import { auth } from "@/auth";
 import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
 const PUBLIC_PATHS = [
   "/coming-soon",
@@ -11,19 +11,26 @@ const PUBLIC_PATHS = [
   "/favicon",
 ];
 
-export default auth((req) => {
-  const { pathname } = req.nextUrl;
-  const isAuthenticated = !!req.auth;
+function getSessionToken(request: NextRequest) {
+  return (
+    request.cookies.get("authjs.session-token") ||
+    request.cookies.get("__Secure-authjs.session-token")
+  );
+}
 
-  // Authenticated user on root → redirect to dashboard
-  if (pathname === "/" && isAuthenticated) {
-    return NextResponse.redirect(new URL("/dashboard", req.url));
+export function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+  const token = getSessionToken(request);
+
+  // Authenticated user on root → go straight to dashboard
+  if (pathname === "/" && token) {
+    return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
   // Dashboard routes — require auth
   if (pathname.startsWith("/dashboard")) {
-    if (!isAuthenticated) {
-      return NextResponse.redirect(new URL("/login", req.url));
+    if (!token) {
+      return NextResponse.redirect(new URL("/login", request.url));
     }
     return NextResponse.next();
   }
@@ -34,8 +41,8 @@ export default auth((req) => {
   }
 
   // Secret bypass: ?preview=brandsync sets a cookie to skip coming-soon
-  if (req.nextUrl.searchParams.get("preview") === "brandsync") {
-    const res = NextResponse.redirect(new URL(pathname, req.url));
+  if (request.nextUrl.searchParams.get("preview") === "brandsync") {
+    const res = NextResponse.redirect(new URL(pathname, request.url));
     res.cookies.set("preview-bypass", "1", {
       maxAge: 30 * 24 * 60 * 60,
       path: "/",
@@ -44,13 +51,13 @@ export default auth((req) => {
   }
 
   // If user has bypass cookie or is logged in, let them through
-  if (req.cookies.get("preview-bypass") || isAuthenticated) {
+  if (request.cookies.get("preview-bypass") || token) {
     return NextResponse.next();
   }
 
   // Everyone else → coming soon
-  return NextResponse.redirect(new URL("/coming-soon", req.url));
-});
+  return NextResponse.redirect(new URL("/coming-soon", request.url));
+}
 
 export const config = {
   matcher: ["/((?!_next/static|_next/image|favicon.ico|icon.svg).*)"],
