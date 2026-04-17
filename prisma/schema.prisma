@@ -28,6 +28,7 @@ model User {
   bio              String?
   location         String?
   website          String?
+  contactEmail     String?   // Email shown on public kit (defaults to account email)
   instagram        String?
   tiktok           String?
   youtube          String?

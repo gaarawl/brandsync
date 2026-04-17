@@ -34,6 +34,8 @@ export default async function MediaKitDashboardPage() {
         bio: user?.bio || null,
         location: user?.location || null,
         website: user?.website || null,
+        contactEmail: user?.contactEmail || null,
+        accountEmail: user?.email || null,
         instagram: user?.instagram || null,
         tiktok: user?.tiktok || null,
         youtube: user?.youtube || null,

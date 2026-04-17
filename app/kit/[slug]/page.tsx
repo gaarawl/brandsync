@@ -263,9 +263,12 @@ export default async function PublicMediaKit({
           </div>
         )}
 
-        {/* Contact CTA */}
-        {user.email && (
-          <ContactButton email={user.email} name={user.name || "ce créateur"} />
+        {/* Contact CTA — prefers public contactEmail, falls back to account email */}
+        {(user.contactEmail || user.email) && (
+          <ContactButton
+            email={user.contactEmail || user.email!}
+            name={user.name || "ce créateur"}
+          />
         )}
 
         {/* Footer */}

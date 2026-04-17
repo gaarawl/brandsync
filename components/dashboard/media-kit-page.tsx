@@ -14,6 +14,7 @@ import {
   Eye,
   Copy,
   Check,
+  Mail,
 } from "lucide-react";
 import { updateMediaKit } from "@/lib/actions/user";
 import LinkEditor, { type LinkItem } from "@/components/dashboard/link-editor";
@@ -25,6 +26,8 @@ interface MediaKitData {
   bio: string | null;
   location: string | null;
   website: string | null;
+  contactEmail: string | null;
+  accountEmail: string | null;
   instagram: string | null;
   tiktok: string | null;
   youtube: string | null;
@@ -45,6 +48,7 @@ export default function MediaKitPage({ data }: { data: MediaKitData }) {
   const [bio, setBio] = useState(data.bio || "");
   const [location, setLocation] = useState(data.location || "");
   const [website, setWebsite] = useState(data.website || "");
+  const [contactEmail, setContactEmail] = useState(data.contactEmail || "");
   const [instagram, setInstagram] = useState(data.instagram || "");
   const [tiktok, setTiktok] = useState(data.tiktok || "");
   const [youtube, setYoutube] = useState(data.youtube || "");
@@ -78,6 +82,7 @@ export default function MediaKitPage({ data }: { data: MediaKitData }) {
     fd.set("bio", bio);
     fd.set("location", location);
     fd.set("website", website);
+    fd.set("contactEmail", contactEmail);
     fd.set("instagram", instagram);
     fd.set("tiktok", tiktok);
     fd.set("youtube", youtube);
@@ -253,6 +258,21 @@ export default function MediaKitPage({ data }: { data: MediaKitData }) {
                   className="w-full rounded-lg border border-border-subtle bg-bg-primary px-3 py-2.5 text-sm text-text-primary outline-none focus:border-accent/40 transition-colors"
                 />
               </div>
+            </div>
+            <div>
+              <label className="text-xs text-text-muted mb-1.5 flex items-center gap-1.5">
+                <Mail className="h-3 w-3" /> Email de contact (public)
+              </label>
+              <input
+                type="email"
+                value={contactEmail}
+                onChange={(e) => setContactEmail(e.target.value)}
+                placeholder={data.accountEmail || "contact@exemple.com"}
+                className="w-full rounded-lg border border-border-subtle bg-bg-primary px-3 py-2.5 text-sm text-text-primary outline-none focus:border-accent/40 transition-colors"
+              />
+              <p className="text-[11px] text-text-muted mt-1.5">
+                Affiché sur ta page publique. Laisse vide pour utiliser l&apos;email de ton compte ({data.accountEmail || "non défini"}).
+              </p>
             </div>
           </div>
         </section>

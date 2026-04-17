@@ -28,6 +28,7 @@ export async function updateMediaKit(formData: FormData) {
   const bio = formData.get("bio") as string;
   const location = formData.get("location") as string;
   const website = formData.get("website") as string;
+  const contactEmailRaw = (formData.get("contactEmail") as string)?.trim();
   const instagram = formData.get("instagram") as string;
   const tiktok = formData.get("tiktok") as string;
   const youtube = formData.get("youtube") as string;
@@ -37,6 +38,11 @@ export async function updateMediaKit(formData: FormData) {
   const mediaKitPublic = formData.get("mediaKitPublic") === "true";
 
   if (!slug) throw new Error("Le slug est requis");
+
+  // Validate contact email format if provided
+  if (contactEmailRaw && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contactEmailRaw)) {
+    throw new Error("Email de contact invalide");
+  }
 
   // Check slug uniqueness
   const existing = await prisma.user.findUnique({ where: { slug } });
@@ -51,6 +57,7 @@ export async function updateMediaKit(formData: FormData) {
       bio: bio || null,
       location: location || null,
       website: website || null,
+      contactEmail: contactEmailRaw || null,
       instagram: instagram || null,
       tiktok: tiktok || null,
       youtube: youtube || null,
