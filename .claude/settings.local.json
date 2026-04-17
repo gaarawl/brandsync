@@ -2,7 +2,19 @@
   "permissions": {
     "allow": [
       "Bash(npm install:*)",
-      "Bash(npx next:*)"
+      "Bash(npx next:*)",
+      "Bash(git commit -m ':*)",
+      "Bash(git add:*)",
+      "Bash(npx vercel:*)",
+      "Bash(node -e ':*)",
+      "Bash(git push:*)",
+      "Bash(npm uninstall:*)",
+      "Bash(ls -la /c/Users/Utilisateur/Desktop/BrandSync/lib/*.ts)",
+      "Bash(ls -la /c/Users/Utilisateur/Desktop/BrandSync/app/api/ai/*/)",
+      "Bash(npx prisma:*)",
+      "Bash(npm audit *)",
+      "Bash(npm run *)",
+      "Bash(git commit -m ' *)"
     ]
   }
 }

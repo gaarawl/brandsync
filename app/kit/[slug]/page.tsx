@@ -3,11 +3,9 @@ import { notFound } from "next/navigation";
 import {
   MapPin,
   Globe,
-  Mail,
   Instagram,
   Youtube,
   Twitter,
-  Linkedin,
   Sparkles,
   Users,
   Building2,
@@ -17,6 +15,22 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import TrackedLink from "@/components/kit/tracked-link";
 import PageViewTracker from "@/components/kit/page-view-tracker";
+import ContactButton from "@/components/kit/contact-button";
+
+/** Format a rate price string as "XX,YY€" when it parses as a number. */
+function formatPrice(price: string): string {
+  const trimmed = price.trim();
+  if (!trimmed) return trimmed;
+  const cleaned = trimmed.replace(/[€$\s]/g, "");
+  let num: number | null = null;
+  if (/^\d+(,\d{1,2})?$/.test(cleaned)) {
+    num = parseFloat(cleaned.replace(",", "."));
+  } else if (/^\d+(\.\d{1,2})?$/.test(cleaned)) {
+    num = parseFloat(cleaned);
+  }
+  if (num === null || isNaN(num)) return trimmed;
+  return `${num.toFixed(2).replace(".", ",")}€`;
+}
 
 type Rate = { label: string; price: string };
 
@@ -78,7 +92,6 @@ export default async function PublicMediaKit({
     { icon: () => <svg className="h-4.5 w-4.5" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.34-6.34V8.75a8.18 8.18 0 004.76 1.52V6.84a4.84 4.84 0 01-1-.15z"/></svg>, value: user.tiktok, href: `https://tiktok.com/@${user.tiktok?.replace("@", "")}` },
     { icon: Youtube, value: user.youtube, href: `https://youtube.com/@${user.youtube?.replace("@", "")}` },
     { icon: Twitter, value: user.twitter, href: `https://x.com/${user.twitter?.replace("@", "")}` },
-    { icon: Linkedin, value: user.linkedin, href: user.linkedin?.startsWith("http") ? user.linkedin : `https://linkedin.com/in/${user.linkedin}` },
   ].filter((s) => s.value);
 
   return (
@@ -242,7 +255,7 @@ export default async function PublicMediaKit({
                     {rate.label}
                   </span>
                   <span className="text-sm font-semibold text-text-primary">
-                    {rate.price}
+                    {formatPrice(rate.price)}
                   </span>
                 </div>
               ))}
@@ -252,17 +265,7 @@ export default async function PublicMediaKit({
 
         {/* Contact CTA */}
         {user.email && (
-          <a
-            href={`mailto:${user.email}`}
-            className="group relative flex items-center justify-center gap-2 w-full overflow-hidden rounded-xl py-3.5 text-sm font-semibold bg-gradient-to-b from-[#a78bfa] to-[#7c3aed] text-white shadow-[0_0_25px_rgba(139,92,246,0.5),0_0_60px_rgba(139,92,246,0.2)]"
-          >
-            <span className="absolute inset-0 rounded-xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.3)]" />
-            <span className="absolute -inset-2 rounded-2xl bg-accent/25 blur-xl opacity-70 group-hover:opacity-100 group-hover:bg-accent/35 transition-all duration-500" />
-            <span className="absolute inset-x-4 -top-px h-px bg-gradient-to-r from-transparent via-white/60 to-transparent" />
-            <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out bg-gradient-to-r from-transparent via-white/25 to-transparent" />
-            <Mail className="h-4 w-4 relative z-10" />
-            <span className="relative z-10">Me contacter</span>
-          </a>
+          <ContactButton email={user.email} name={user.name || "ce créateur"} />
         )}
 
         {/* Footer */}

@@ -7,7 +7,6 @@ import {
   Instagram,
   Youtube,
   Twitter,
-  Linkedin,
   MapPin,
   Link2,
   Plus,
@@ -269,7 +268,6 @@ export default function MediaKitPage({ data }: { data: MediaKitData }) {
               { icon: () => <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.34-6.34V8.75a8.18 8.18 0 004.76 1.52V6.84a4.84 4.84 0 01-1-.15z"/></svg>, label: "TikTok", value: tiktok, set: setTiktok, placeholder: "@tonpseudo" },
               { icon: Youtube, label: "YouTube", value: youtube, set: setYoutube, placeholder: "@tonpseudo" },
               { icon: Twitter, label: "X / Twitter", value: twitter, set: setTwitter, placeholder: "@tonpseudo" },
-              { icon: Linkedin, label: "LinkedIn", value: linkedin, set: setLinkedin, placeholder: "URL du profil" },
             ].map((social) => (
               <div key={social.label}>
                 <label className="text-xs text-text-muted mb-1.5 flex items-center gap-1.5">
