@@ -12,15 +12,11 @@ import {
   Sparkles,
   Loader2,
   X,
-  Check,
   Edit3,
   Eye,
   ChevronDown,
   Building2,
   AlertCircle,
-  RefreshCw,
-  Crown,
-  Inbox,
 } from "lucide-react";
 import {
   createContact,
@@ -31,11 +27,6 @@ import {
   deleteCampaign,
   sendCampaign,
 } from "@/lib/actions/emails";
-import {
-  enableEmailSync,
-  disableEmailSync,
-  triggerManualSync,
-} from "@/lib/actions/email-sync";
 
 type Contact = {
   id: string;
@@ -77,20 +68,12 @@ type Usage = {
   plan: string;
 };
 
-type SyncInfo = {
-  enabled: boolean;
-  lastSyncAt: string | null;
-  canSync: boolean;
-  syncIntervalMinutes: number;
-};
-
 interface EmailsPageProps {
   contacts: Contact[];
   campaigns: Campaign[];
   brands: Brand[];
   userName: string;
   usage: Usage;
-  sync: SyncInfo;
 }
 
 const inputClass =
@@ -102,16 +85,9 @@ export default function EmailsPage({
   brands,
   userName,
   usage,
-  sync,
 }: EmailsPageProps) {
   const [isPending, startTransition] = useTransition();
-  const [tab, setTab] = useState<"campaigns" | "contacts" | "sync">("campaigns");
-
-  // Sync state
-  const [syncEnabled, setSyncEnabled] = useState(sync.enabled);
-  const [syncLoading, setSyncLoading] = useState(false);
-  const [syncResult, setSyncResult] = useState<{ found: number; created: number; errors: string[] } | null>(null);
-  const [syncError, setSyncError] = useState("");
+  const [tab, setTab] = useState<"campaigns" | "contacts">("campaigns");
 
   // Contacts state
   const [contacts, setContacts] = useState(initialContacts);
@@ -353,52 +329,6 @@ export default function EmailsPage({
     });
   };
 
-  // ── Sync handlers ──
-
-  const handleToggleSync = () => {
-    setSyncError("");
-    startTransition(async () => {
-      try {
-        if (syncEnabled) {
-          await disableEmailSync();
-          setSyncEnabled(false);
-        } else {
-          await enableEmailSync();
-          setSyncEnabled(true);
-        }
-      } catch (err: any) {
-        setSyncError(err.message || "Erreur");
-      }
-    });
-  };
-
-  const handleManualSync = () => {
-    setSyncError("");
-    setSyncResult(null);
-    setSyncLoading(true);
-    startTransition(async () => {
-      try {
-        const result = await triggerManualSync();
-        setSyncResult(result);
-      } catch (err: any) {
-        setSyncError(err.message || "Erreur de synchronisation");
-      } finally {
-        setSyncLoading(false);
-      }
-    });
-  };
-
-  const formatRelativeTime = (dateStr: string | null) => {
-    if (!dateStr) return "Jamais";
-    const diff = Date.now() - new Date(dateStr).getTime();
-    const mins = Math.floor(diff / 60000);
-    if (mins < 1) return "À l'instant";
-    if (mins < 60) return `Il y a ${mins} min`;
-    const hours = Math.floor(mins / 60);
-    if (hours < 24) return `Il y a ${hours}h`;
-    return `Il y a ${Math.floor(hours / 24)}j`;
-  };
-
   return (
     <main className="flex-1 overflow-y-auto p-6 space-y-6 bg-page-emails">
       {/* Header */}
@@ -457,20 +387,6 @@ export default function EmailsPage({
         >
           <Users className="h-4 w-4" />
           Contacts ({contacts.length})
-        </button>
-        <button
-          onClick={() => setTab("sync")}
-          className={`flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors ${
-            tab === "sync"
-              ? "bg-accent/10 text-accent"
-              : "text-text-secondary hover:text-text-primary"
-          }`}
-        >
-          <Inbox className="h-4 w-4" />
-          Sync Gmail
-          {syncEnabled && (
-            <span className="h-2 w-2 rounded-full bg-green-400" />
-          )}
         </button>
       </div>
 
@@ -745,175 +661,6 @@ export default function EmailsPage({
                   })}
                 </tbody>
               </table>
-            </div>
-          )}
-        </motion.div>
-      )}
-
-      {/* ══════════════ SYNC TAB ══════════════ */}
-      {tab === "sync" && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="space-y-4"
-        >
-          {!sync.canSync ? (
-            /* Plan upgrade prompt */
-            <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-8 text-center">
-              <Crown className="h-10 w-10 text-amber-400 mx-auto mb-3" />
-              <h3 className="text-base font-bold text-text-primary mb-2">
-                Sync Gmail — Pro & Business
-              </h3>
-              <p className="text-sm text-text-secondary max-w-md mx-auto mb-4">
-                Connecte ta boîte Gmail pour détecter automatiquement les emails
-                de collaboration et les ajouter en leads.
-              </p>
-              <div className="flex gap-4 justify-center text-xs text-text-muted mb-5">
-                <div className="rounded-lg border border-border-subtle bg-bg-surface px-4 py-3">
-                  <p className="font-semibold text-accent mb-1">Pro</p>
-                  <p>Sync toutes les 3h</p>
-                </div>
-                <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 px-4 py-3">
-                  <p className="font-semibold text-amber-400 mb-1">Business</p>
-                  <p>Sync toutes les 30min</p>
-                </div>
-              </div>
-              <a
-                href="/pricing"
-                className="inline-flex items-center gap-2 rounded-xl bg-accent text-white px-6 py-2.5 text-sm font-semibold hover:bg-accent-glow transition-colors shadow-md shadow-accent/20"
-              >
-                <Crown className="h-4 w-4" />
-                Passer à Pro
-              </a>
-            </div>
-          ) : (
-            /* Sync controls */
-            <div className="space-y-4">
-              {/* Toggle + status card */}
-              <div className="rounded-xl border border-border-subtle bg-bg-surface p-5">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-500/10">
-                      <Inbox className="h-5 w-5 text-blue-400" />
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-semibold text-text-primary">
-                        Détection automatique
-                      </h3>
-                      <p className="text-xs text-text-muted">
-                        Scanne Gmail pour les emails de collaboration
-                      </p>
-                    </div>
-                  </div>
-                  <button
-                    onClick={handleToggleSync}
-                    disabled={isPending}
-                    className={`relative w-12 h-6 rounded-full transition-colors ${
-                      syncEnabled ? "bg-green-500" : "bg-bg-elevated border border-border-subtle"
-                    }`}
-                  >
-                    <span
-                      className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${
-                        syncEnabled ? "left-[26px]" : "left-0.5"
-                      }`}
-                    />
-                  </button>
-                </div>
-
-                <div className="grid grid-cols-3 gap-3">
-                  <div className="rounded-lg bg-bg-primary border border-border-subtle/50 p-3 text-center">
-                    <p className="text-[11px] text-text-muted mb-0.5">Statut</p>
-                    <p className={`text-xs font-semibold ${syncEnabled ? "text-green-400" : "text-text-muted"}`}>
-                      {syncEnabled ? "Actif" : "Désactivé"}
-                    </p>
-                  </div>
-                  <div className="rounded-lg bg-bg-primary border border-border-subtle/50 p-3 text-center">
-                    <p className="text-[11px] text-text-muted mb-0.5">Fréquence</p>
-                    <p className="text-xs font-semibold text-text-primary">
-                      {sync.syncIntervalMinutes >= 60
-                        ? `${sync.syncIntervalMinutes / 60}h`
-                        : `${sync.syncIntervalMinutes}min`}
-                    </p>
-                  </div>
-                  <div className="rounded-lg bg-bg-primary border border-border-subtle/50 p-3 text-center">
-                    <p className="text-[11px] text-text-muted mb-0.5">Dernière sync</p>
-                    <p className="text-xs font-semibold text-text-primary">
-                      {formatRelativeTime(sync.lastSyncAt)}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Manual sync button */}
-              <div className="rounded-xl border border-border-subtle bg-bg-surface p-5">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="text-sm font-semibold text-text-primary mb-1">
-                      Synchronisation manuelle
-                    </h3>
-                    <p className="text-xs text-text-muted">
-                      Lance un scan immédiat de ta boîte Gmail
-                    </p>
-                  </div>
-                  <button
-                    onClick={handleManualSync}
-                    disabled={isPending || syncLoading}
-                    className="flex items-center gap-2 rounded-xl bg-accent text-white px-4 py-2.5 text-sm font-medium hover:bg-accent-glow transition-colors shadow-md shadow-accent/20 disabled:opacity-50"
-                  >
-                    {syncLoading ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <RefreshCw className="h-4 w-4" />
-                    )}
-                    Synchroniser
-                  </button>
-                </div>
-
-                {/* Sync result */}
-                {syncResult && (
-                  <div className="mt-4 rounded-lg border border-green-500/20 bg-green-500/5 p-3">
-                    <div className="flex items-center gap-2 text-sm text-green-400 font-medium">
-                      <Check className="h-4 w-4" />
-                      {syncResult.found} email(s) détecté(s), {syncResult.created} lead(s) créé(s)
-                    </div>
-                    {syncResult.errors.length > 0 && (
-                      <div className="mt-2 text-xs text-red-400/80 space-y-0.5">
-                        {syncResult.errors.map((err, i) => (
-                          <p key={i}>{err}</p>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {syncError && (
-                  <div className="mt-4 flex items-center gap-2 text-xs text-red-400">
-                    <AlertCircle className="h-3.5 w-3.5" />
-                    {syncError}
-                  </div>
-                )}
-              </div>
-
-              {/* How it works */}
-              <div className="rounded-xl border border-border-subtle bg-bg-surface p-5">
-                <h3 className="text-sm font-semibold text-text-primary mb-3">
-                  Comment ça marche ?
-                </h3>
-                <div className="space-y-3 text-xs text-text-secondary">
-                  <div className="flex items-start gap-3">
-                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent/10 text-accent text-[10px] font-bold">1</span>
-                    <p>BrandSync scanne ta boîte Gmail à intervalle régulier (lecture seule)</p>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent/10 text-accent text-[10px] font-bold">2</span>
-                    <p>Les emails contenant des mots-clés de collaboration sont détectés (partenariat, sponsoring, collab...)</p>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent/10 text-accent text-[10px] font-bold">3</span>
-                    <p>Une marque et une collaboration &quot;lead&quot; sont automatiquement créées dans ton dashboard</p>
-                  </div>
-                </div>
-              </div>
             </div>
           )}
         </motion.div>

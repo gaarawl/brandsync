@@ -3,20 +3,25 @@ import { sendNewsletterToSubscriber } from "@/lib/email";
 import { NextRequest, NextResponse } from "next/server";
 import { readFileSync } from "fs";
 import { join } from "path";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 export async function POST(req: NextRequest) {
-  try {
-    // Protect with a secret key
-    const { secret } = await req.json();
-    if (secret !== process.env.NEWSLETTER_SECRET) {
-      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
-    }
+  // 3 requests per IP per minute (admin endpoint)
+  if (!checkRateLimit(getClientIp(req), 3, 60_000)) {
+    return NextResponse.json({ error: "Trop de requêtes" }, { status: 429 });
+  }
 
-    // Read the newsletter HTML template
+  // Secret via Authorization header: "Bearer <NEWSLETTER_SECRET>"
+  const authorization = req.headers.get("authorization");
+  const secret = process.env.NEWSLETTER_SECRET;
+  if (!secret || authorization !== `Bearer ${secret}`) {
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
+  }
+
+  try {
     const htmlPath = join(process.cwd(), "lib", "emails", "newsletter-launch.html");
     const htmlContent = readFileSync(htmlPath, "utf-8");
 
-    // Get all subscribers
     const subscribers = await prisma.newsletterSubscriber.findMany({
       select: { email: true },
     });
@@ -29,7 +34,6 @@ export async function POST(req: NextRequest) {
       try {
         await sendNewsletterToSubscriber(sub.email, htmlContent);
         sent++;
-        // Small delay to avoid rate limiting
         await new Promise((r) => setTimeout(r, 200));
       } catch (e) {
         failed++;

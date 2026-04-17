@@ -2,23 +2,44 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { getGemini, GEMINI_MODEL } from "@/lib/gemini";
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 const PLAN_LIMITS: Record<string, number> = {
-  free: 10,      // 10 messages / jour
-  pro: 200,      // 200 messages / jour
-  business: 500, // 500 messages / jour
+  free: 10,
+  pro: 200,
+  business: 500,
 };
 
+const messageSchema = z.object({
+  role: z.enum(["user", "assistant"]),
+  content: z.string().min(1).max(10000),
+});
+
+const chatSchema = z.object({
+  messages: z.array(messageSchema).min(1).max(100),
+});
+
 export async function POST(req: NextRequest) {
+  // 30 requests per IP per minute
+  if (!checkRateLimit(getClientIp(req), 30, 60_000)) {
+    return NextResponse.json({ error: "Trop de requêtes" }, { status: 429 });
+  }
+
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
   }
 
-  const { messages } = await req.json();
+  const body = await req.json().catch(() => null);
+  const parsed = chatSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json({ error: "Paramètres invalides" }, { status: 400 });
+  }
+
+  const { messages } = parsed.data;
   const userId = session.user.id;
 
-  // Check user plan and daily usage
   const user = await prisma.user.findUnique({
     where: { id: userId },
     select: { plan: true },
@@ -49,7 +70,6 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Fetch user context from DB
   const [brands, collaborations, payments] = await Promise.all([
     prisma.brand.findMany({
       where: { userId },
@@ -119,8 +139,7 @@ Règles :
 - Tu peux utiliser des emojis avec modération
 - Si une question est hors sujet (pas liée au business de créateur), réponds quand même poliment mais brièvement`;
 
-  // Build Gemini conversation history
-  const geminiHistory = messages.slice(0, -1).map((m: { role: string; content: string }) => ({
+  const geminiHistory = messages.slice(0, -1).map((m) => ({
     role: m.role === "assistant" ? "model" : "user",
     parts: [{ text: m.content }],
   }));
@@ -145,7 +164,6 @@ Règles :
     );
   }
 
-  // Increment usage counter
   await prisma.aiUsage.upsert({
     where: { userId_date: { userId, date: today } },
     update: { count: { increment: 1 } },

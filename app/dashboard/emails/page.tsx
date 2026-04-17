@@ -10,7 +10,7 @@ export default async function EmailsDashboard() {
   const todayStart = new Date();
   todayStart.setHours(0, 0, 0, 0);
 
-  const [contacts, campaigns, brands, user, sentToday, emailSync] = await Promise.all([
+  const [contacts, campaigns, brands, user, sentToday] = await Promise.all([
     userId
       ? prisma.contact.findMany({
           where: { userId },
@@ -47,12 +47,6 @@ export default async function EmailsDashboard() {
           },
         })
       : 0,
-    userId
-      ? prisma.emailSync.findUnique({
-          where: { userId },
-          select: { enabled: true, lastSyncAt: true },
-        })
-      : null,
   ]);
 
   const plan = user?.plan || "free";
@@ -69,12 +63,6 @@ export default async function EmailsDashboard() {
         dailyLimit: limits.dailyEmails,
         maxRecipients: limits.maxRecipients,
         plan,
-      }}
-      sync={{
-        enabled: emailSync?.enabled || false,
-        lastSyncAt: emailSync?.lastSyncAt?.toISOString() || null,
-        canSync: limits.emailSync,
-        syncIntervalMinutes: limits.syncIntervalMinutes,
       }}
     />
   );

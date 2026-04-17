@@ -2,6 +2,8 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { getGemini, GEMINI_MODEL } from "@/lib/gemini";
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 const PLAN_LIMITS: Record<string, number> = {
   free: 10,
@@ -9,13 +11,29 @@ const PLAN_LIMITS: Record<string, number> = {
   business: 500,
 };
 
+const emailDraftSchema = z.object({
+  prompt: z.string().min(1).max(1000),
+  context: z.string().max(500).optional(),
+});
+
 export async function POST(req: NextRequest) {
+  // 30 requests per IP per minute
+  if (!checkRateLimit(getClientIp(req), 30, 60_000)) {
+    return NextResponse.json({ error: "Trop de requêtes" }, { status: 429 });
+  }
+
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
   }
 
-  const { prompt, context } = await req.json();
+  const body = await req.json().catch(() => null);
+  const parsed = emailDraftSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json({ error: "Paramètres invalides" }, { status: 400 });
+  }
+
+  const { prompt, context } = parsed.data;
   const userId = session.user.id;
 
   const user = await prisma.user.findUnique({
@@ -46,7 +64,6 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Fetch user context
   const [brands, collaborations] = await Promise.all([
     prisma.brand.findMany({
       where: { userId },
@@ -99,7 +116,6 @@ ${context ? `CONTEXTE SUPPLÉMENTAIRE : ${context}` : ""}`;
     );
   }
 
-  // Increment usage
   await prisma.aiUsage.upsert({
     where: { userId_date: { userId, date: today } },
     update: { count: { increment: 1 } },
