@@ -188,7 +188,7 @@ export async function sendNewsletterToSubscriber(
   return getResend().emails.send({
     from: "BrandSync <noreply@brandsync.fr>",
     to,
-    subject: "BrandSync.fr — 20 avril, 00h00. Le signal est lancé.",
+    subject: "✦ Dimanche 20 avril, 00h00. BrandSync ouvre.",
     html: htmlContent,
   });
 }
