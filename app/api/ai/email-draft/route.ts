@@ -83,13 +83,21 @@ CONSIGNES :
 
 ${context ? `CONTEXTE SUPPLÉMENTAIRE : ${context}` : ""}`;
 
-  const model = getGemini().getGenerativeModel({
-    model: GEMINI_MODEL,
-    systemInstruction: systemPrompt,
-  });
-
-  const result = await model.generateContent(prompt);
-  const text = result.response.text();
+  let text = "";
+  try {
+    const model = getGemini().getGenerativeModel({
+      model: GEMINI_MODEL,
+      systemInstruction: systemPrompt,
+    });
+    const result = await model.generateContent(prompt);
+    text = result.response.text();
+  } catch (e) {
+    console.error("Gemini email-draft error:", e);
+    return NextResponse.json(
+      { error: "ai_error", message: "Rédaction indisponible, réessaie dans un instant." },
+      { status: 503 }
+    );
+  }
 
   // Increment usage
   await prisma.aiUsage.upsert({

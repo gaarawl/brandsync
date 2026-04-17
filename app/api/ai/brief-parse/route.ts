@@ -98,9 +98,18 @@ Analyse ce brief/email et extrais les informations :
 
 ${briefText}`;
 
-  const model = getGemini().getGenerativeModel({ model: GEMINI_MODEL });
-  const result = await model.generateContent(prompt);
-  const text = result.response.text();
+  let text = "";
+  try {
+    const model = getGemini().getGenerativeModel({ model: GEMINI_MODEL });
+    const result = await model.generateContent(prompt);
+    text = result.response.text();
+  } catch (e) {
+    console.error("Gemini brief-parse error:", e);
+    return NextResponse.json(
+      { error: "ai_error", message: "Analyse indisponible, réessaie dans un instant." },
+      { status: 503 }
+    );
+  }
 
   const parsed = parseAIJson(text);
 

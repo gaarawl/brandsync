@@ -132,9 +132,18 @@ Règles :
     systemInstruction: systemPrompt,
   });
 
-  const chat = model.startChat({ history: geminiHistory });
-  const result = await chat.sendMessage(lastMessage.content);
-  const text = result.response.text();
+  let text = "";
+  try {
+    const chat = model.startChat({ history: geminiHistory });
+    const result = await chat.sendMessage(lastMessage.content);
+    text = result.response.text();
+  } catch (e) {
+    console.error("Gemini chat error:", e);
+    return NextResponse.json(
+      { error: "ai_error", message: "L'assistant IA est temporairement indisponible, réessaie dans un instant." },
+      { status: 503 }
+    );
+  }
 
   // Increment usage counter
   await prisma.aiUsage.upsert({

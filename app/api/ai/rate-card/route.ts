@@ -104,9 +104,18 @@ Inclus les types de contenu pertinents pour la/les plateforme(s) sélectionnée(
 
 Génère ma grille tarifaire pour ${platformList} avec ${followers} abonnés, ${engagementRate}% d'engagement, niche : ${niche}.`;
 
-  const model = getGemini().getGenerativeModel({ model: GEMINI_MODEL });
-  const result = await model.generateContent(prompt);
-  const text = result.response.text();
+  let text = "";
+  try {
+    const model = getGemini().getGenerativeModel({ model: GEMINI_MODEL });
+    const result = await model.generateContent(prompt);
+    text = result.response.text();
+  } catch (e) {
+    console.error("Gemini rate-card error:", e);
+    return NextResponse.json(
+      { error: "ai_error", message: "Génération indisponible, réessaie dans un instant." },
+      { status: 503 }
+    );
+  }
 
   const parsed = parseAIJson(text);
 
