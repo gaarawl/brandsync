@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
   }
 
-  const { platforms, followers, engagementRate, niche } = await req.json();
+  const { platforms, followers, engagementRate, niche, productType, productPrice } = await req.json();
   const userId = session.user.id;
 
   const user = await prisma.user.findUnique({
@@ -67,6 +67,25 @@ export async function POST(req: NextRequest) {
 
   const platformList = Array.isArray(platforms) ? platforms.join(", ") : platforms;
 
+  const productContext = productType || productPrice
+    ? `
+PRODUIT À PROMOUVOIR :
+${productType ? `- Type : ${productType === "digital" ? "Produit digital (ebook, formation, SaaS, app, service en ligne...)" : "Produit physique (vêtement, cosmétique, tech, accessoire...)"}` : ""}
+${productPrice ? `- Prix unitaire : ${productPrice}€` : ""}`
+    : "";
+
+  const productPricingRules = productType || productPrice
+    ? `
+AJUSTEMENT SELON LE PRODUIT :
+- Produit digital : marge marque plus élevée (70-90%), donc la marque peut se permettre de payer + pour la promo. Applique un coefficient x1.1 à x1.3 sur les tarifs.
+- Produit physique : marge marque plus faible (30-50%), tarifs standard.
+- Prix produit < 30€ : tarifs standard (produit grand public, besoin de volume).
+- Prix produit 30-150€ : tarifs standard à premium (coef x1.1).
+- Prix produit 150-500€ : tarifs premium (coef x1.2-x1.4), car ROI par conversion plus élevé.
+- Prix produit > 500€ (luxe, formations, SaaS enterprise) : tarifs très premium (coef x1.5-x2), peu de conversions nécessaires pour rentabiliser.
+- Intègre cette logique dans le prix final ET mentionne dans les notes que le tarif a été ajusté selon le produit.`
+    : "";
+
   const prompt = `Tu es un expert en tarification pour créateurs de contenu / influenceurs sur le marché français.
 
 MISSION : Génère une grille tarifaire personnalisée basée sur les informations du créateur.
@@ -75,7 +94,7 @@ DONNÉES DU CRÉATEUR :
 - Plateforme(s) : ${platformList}
 - Nombre d'abonnés : ${followers}
 - Taux d'engagement : ${engagementRate}%
-- Niche/catégorie : ${niche}
+- Niche/catégorie : ${niche}${productContext}
 
 RÈGLES DE TARIFICATION :
 - Base le prix sur le CPM (coût pour mille impressions) standard du marché français
@@ -83,7 +102,7 @@ RÈGLES DE TARIFICATION :
 - Les niches tech, finance, luxe = tarifs plus élevés
 - Les niches lifestyle, humour = tarifs standard
 - Prends en compte la plateforme (YouTube > Instagram > TikTok en CPM)
-- Sois réaliste avec les tarifs pour le marché français
+- Sois réaliste avec les tarifs pour le marché français${productPricingRules}
 
 RÉPONDS UNIQUEMENT en JSON valide, sans markdown, sans backticks, avec cette structure exacte :
 {

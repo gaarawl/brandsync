@@ -36,6 +36,8 @@ export default function AIRateCard() {
   const [followers, setFollowers] = useState("");
   const [engagement, setEngagement] = useState("");
   const [niche, setNiche] = useState("");
+  const [productType, setProductType] = useState<"digital" | "physique" | "">("");
+  const [productPrice, setProductPrice] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<RateResult | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -65,6 +67,8 @@ export default function AIRateCard() {
           followers: parseInt(followers.replace(/\D/g, "")),
           engagementRate: parseFloat(engagement),
           niche,
+          productType: productType || null,
+          productPrice: productPrice ? parseFloat(productPrice.replace(/[^\d.]/g, "")) : null,
         }),
       });
 
@@ -203,6 +207,44 @@ export default function AIRateCard() {
                 </select>
               </div>
 
+              {/* Product type + price (optional) */}
+              <div className="border-t border-border-subtle pt-5">
+                <p className="text-[11px] font-medium text-text-muted uppercase tracking-wider mb-3">
+                  Produit à promouvoir <span className="text-text-muted/60 normal-case tracking-normal">(optionnel, améliore la précision)</span>
+                </p>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs font-medium text-text-muted mb-1 block">
+                      Type de produit
+                    </label>
+                    <select
+                      value={productType}
+                      onChange={(e) => setProductType(e.target.value as "digital" | "physique" | "")}
+                      className={inputClass}
+                    >
+                      <option value="">—</option>
+                      <option value="digital">Digital (ebook, formation, SaaS, app...)</option>
+                      <option value="physique">Physique (vêtement, cosmétique, tech...)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium text-text-muted mb-1 block">
+                      Prix du produit (€)
+                    </label>
+                    <input
+                      type="text"
+                      value={productPrice}
+                      onChange={(e) => setProductPrice(e.target.value)}
+                      placeholder="ex: 49.99"
+                      className={inputClass}
+                    />
+                  </div>
+                </div>
+                <p className="text-[11px] text-text-muted/70 mt-2 leading-relaxed">
+                  Plus le produit est cher, plus le tarif de la collab augmente (logique de ROI marque).
+                </p>
+              </div>
+
               {/* Generate */}
               <button
                 onClick={generate}
@@ -271,6 +313,9 @@ export default function AIRateCard() {
                 {selectedPlatforms.join(", ")} &middot;{" "}
                 {parseInt(followers.replace(/\D/g, "")).toLocaleString("fr-FR")}{" "}
                 abonnés &middot; {engagement}% engagement &middot; {niche}
+                {productType && (
+                  <> &middot; Produit {productType}{productPrice && ` (${productPrice}€)`}</>
+                )}
               </p>
             </div>
 
