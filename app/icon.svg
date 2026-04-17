@@ -1,17 +1,31 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#7c3aed"/>
-      <stop offset="100%" stop-color="#5b21b6"/>
+      <stop offset="0%" stop-color="#1A1A2E"/>
+      <stop offset="100%" stop-color="#0B0B13"/>
     </linearGradient>
-    <linearGradient id="star" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#ffffff"/>
-      <stop offset="100%" stop-color="#e0d4ff"/>
+    <linearGradient id="tl" x1="1" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#A78BFA"/>
+      <stop offset="100%" stop-color="#7C3AED"/>
+    </linearGradient>
+    <linearGradient id="tr" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#DDD6FE"/>
+      <stop offset="100%" stop-color="#A78BFA"/>
+    </linearGradient>
+    <linearGradient id="bl" x1="1" y1="1" x2="0" y2="0">
+      <stop offset="0%" stop-color="#4C1D95"/>
+      <stop offset="100%" stop-color="#6D28D9"/>
+    </linearGradient>
+    <linearGradient id="br" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0%" stop-color="#6D28D9"/>
+      <stop offset="100%" stop-color="#8B5CF6"/>
     </linearGradient>
   </defs>
   <rect width="32" height="32" rx="7" fill="url(#bg)"/>
-  <!-- Main sparkle -->
-  <path d="M16 6 L18.5 13.5 L26 16 L18.5 18.5 L16 26 L13.5 18.5 L6 16 L13.5 13.5 Z" fill="url(#star)"/>
-  <!-- Small accent sparkle -->
-  <path d="M23 7 L24 9.5 L26.5 10.5 L24 11.5 L23 14 L22 11.5 L19.5 10.5 L22 9.5 Z" fill="white" opacity="0.6"/>
+  <g>
+    <path d="M16 5 L8 16 L16 16 Z" fill="url(#tl)"/>
+    <path d="M16 5 L24 16 L16 16 Z" fill="url(#tr)"/>
+    <path d="M8 16 L16 27 L16 16 Z" fill="url(#bl)"/>
+    <path d="M24 16 L16 27 L16 16 Z" fill="url(#br)"/>
+  </g>
 </svg>

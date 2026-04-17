@@ -1,15 +1,31 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" viewBox="0 0 192 192">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#7c3aed"/>
-      <stop offset="100%" stop-color="#5b21b6"/>
+      <stop offset="0%" stop-color="#1A1A2E"/>
+      <stop offset="100%" stop-color="#0B0B13"/>
     </linearGradient>
-    <linearGradient id="star" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#ffffff"/>
-      <stop offset="100%" stop-color="#e0d4ff"/>
+    <linearGradient id="tl" x1="1" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#A78BFA"/>
+      <stop offset="100%" stop-color="#7C3AED"/>
+    </linearGradient>
+    <linearGradient id="tr" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#DDD6FE"/>
+      <stop offset="100%" stop-color="#A78BFA"/>
+    </linearGradient>
+    <linearGradient id="bl" x1="1" y1="1" x2="0" y2="0">
+      <stop offset="0%" stop-color="#4C1D95"/>
+      <stop offset="100%" stop-color="#6D28D9"/>
+    </linearGradient>
+    <linearGradient id="br" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0%" stop-color="#6D28D9"/>
+      <stop offset="100%" stop-color="#8B5CF6"/>
     </linearGradient>
   </defs>
   <rect width="192" height="192" rx="42" fill="url(#bg)"/>
-  <path d="M96 36 L111 81 L156 96 L111 111 L96 156 L81 111 L36 96 L81 81 Z" fill="url(#star)"/>
-  <path d="M138 42 L144 57 L159 63 L144 69 L138 84 L132 69 L117 63 L132 57 Z" fill="white" opacity="0.6"/>
+  <g>
+    <path d="M96 30 L48 96 L96 96 Z" fill="url(#tl)"/>
+    <path d="M96 30 L144 96 L96 96 Z" fill="url(#tr)"/>
+    <path d="M48 96 L96 162 L96 96 Z" fill="url(#bl)"/>
+    <path d="M144 96 L96 162 L96 96 Z" fill="url(#br)"/>
+  </g>
 </svg>

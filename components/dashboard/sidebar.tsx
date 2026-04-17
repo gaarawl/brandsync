@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { BrandLogo } from "@/components/brand-logo";
 import {
-  Sparkles,
   Home,
   Users,
   Building2,
@@ -97,9 +97,7 @@ export default function Sidebar({ user }: SidebarProps) {
       {/* Logo */}
       <div className="flex items-center justify-between px-4 py-5 border-b border-border-subtle">
         <Link href="/dashboard" className="flex items-center gap-2.5">
-          <div className="relative flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-accent to-accent-glow shadow-lg shadow-accent/20">
-            <Sparkles className="h-4 w-4 text-white shrink-0" />
-          </div>
+          <BrandLogo />
           <span className="text-sm font-bold tracking-tight">BrandSync</span>
         </Link>
         {/* Close button on mobile, collapse on desktop */}
@@ -259,9 +257,7 @@ export default function Sidebar({ user }: SidebarProps) {
         {/* Desktop version with collapse support */}
         <div className="flex items-center justify-between px-4 py-5 border-b border-border-subtle">
           <Link href="/dashboard" className="flex items-center gap-2.5">
-            <div className="relative flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-accent to-accent-glow shadow-lg shadow-accent/20">
-              <Sparkles className="h-4 w-4 text-white shrink-0" />
-            </div>
+            <BrandLogo />
             {!collapsed && <span className="text-sm font-bold tracking-tight">BrandSync</span>}
           </Link>
           <button
