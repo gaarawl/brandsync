@@ -189,6 +189,56 @@ body {
     50% { left: 100%; }
   }
 
+  /* CTA button with moving shine */
+  .btn-cta-shine {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, #8B5CF6 0%, #A78BFA 50%, #8B5CF6 100%);
+    background-size: 200% 200%;
+    box-shadow:
+      0 0 20px rgba(139, 92, 246, 0.35),
+      0 0 40px rgba(139, 92, 246, 0.2),
+      0 8px 24px rgba(139, 92, 246, 0.25),
+      inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    animation: cta-pulse 3s ease-in-out infinite;
+  }
+
+  .btn-cta-shine::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 60%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.35) 50%,
+      transparent 100%
+    );
+    transform: skewX(-20deg);
+    animation: cta-shine-sweep 2.5s ease-in-out infinite;
+  }
+
+  .btn-cta-shine:hover {
+    box-shadow:
+      0 0 30px rgba(139, 92, 246, 0.55),
+      0 0 60px rgba(139, 92, 246, 0.3),
+      0 12px 32px rgba(139, 92, 246, 0.35),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+  }
+
+  @keyframes cta-shine-sweep {
+    0% { left: -100%; }
+    60%, 100% { left: 200%; }
+  }
+
+  @keyframes cta-pulse {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+
   .bg-radial-top {
     background: radial-gradient(
       ellipse 60% 40% at 50% 0%,

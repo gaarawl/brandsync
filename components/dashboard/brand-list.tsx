@@ -245,10 +245,24 @@ export default function BrandList({ brands }: { brands: Brand[] }) {
       </div>
 
       {filtered.length === 0 && (
-        <div className="py-12 text-center text-sm text-text-muted">
-          {brands.length === 0
-            ? "Aucune marque. Ajoutez votre première marque !"
-            : "Aucune marque trouvée."}
+        <div className="py-12 flex flex-col items-center gap-5 text-center">
+          <p className="text-sm text-text-muted">
+            {brands.length === 0
+              ? "Aucune marque. Ajoutez votre première marque !"
+              : "Aucune marque trouvée."}
+          </p>
+          {brands.length === 0 && (
+            <motion.button
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1, duration: 0.4 }}
+              onClick={() => setShowModal(true)}
+              className="btn-cta-shine flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold text-white transition-all"
+            >
+              <Plus className="h-4 w-4 relative z-10" />
+              <span className="relative z-10">Ajouter ma première marque</span>
+            </motion.button>
+          )}
         </div>
       )}
 
