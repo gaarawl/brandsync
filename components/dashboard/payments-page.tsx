@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Clock,
@@ -111,7 +112,49 @@ export default function PaymentsPage({
   const [showModal, setShowModal] = useState(false);
   const [editPayment, setEditPayment] = useState<Payment | null>(null);
   const [menuOpen, setMenuOpen] = useState<string | null>(null);
+  const [menuPos, setMenuPos] = useState<{ top: number; right: number } | null>(
+    null
+  );
   const [isPending, startTransition] = useTransition();
+
+  // Close menu on outside click
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onClick = (e: MouseEvent) => {
+      const el = e.target as HTMLElement;
+      if (
+        !el.closest("[data-payment-menu]") &&
+        !el.closest("[data-payment-menu-trigger]")
+      ) {
+        setMenuOpen(null);
+      }
+    };
+    const t = setTimeout(() => document.addEventListener("click", onClick), 0);
+    return () => {
+      clearTimeout(t);
+      document.removeEventListener("click", onClick);
+    };
+  }, [menuOpen]);
+
+  const handleMenuToggle = (
+    e: React.MouseEvent<HTMLButtonElement>,
+    id: string
+  ) => {
+    e.stopPropagation();
+    if (menuOpen === id) {
+      setMenuOpen(null);
+      return;
+    }
+    const rect = e.currentTarget.getBoundingClientRect();
+    const menuHeight = 120;
+    const spaceBelow = window.innerHeight - rect.bottom;
+    const openUp = spaceBelow < menuHeight + 20;
+    setMenuPos({
+      top: openUp ? rect.top - menuHeight - 4 : rect.bottom + 4,
+      right: window.innerWidth - rect.right,
+    });
+    setMenuOpen(id);
+  };
 
   const filtered = payments.filter(
     (p) => activeFilter === "all" || p.status === activeFilter
@@ -427,41 +470,13 @@ export default function PaymentsPage({
                   <span className="text-sm text-text-secondary">
                     {formatDate(p.dueDate)}
                   </span>
-                  <div className="relative">
-                    <button
-                      onClick={() =>
-                        setMenuOpen(menuOpen === p.id ? null : p.id)
-                      }
-                      className="text-text-muted hover:text-text-primary"
-                    >
-                      <MoreHorizontal className="h-4 w-4" />
-                    </button>
-                    {menuOpen === p.id && (
-                      <div className="absolute right-0 top-6 z-10 w-36 rounded-lg border border-border-subtle bg-bg-surface py-1 shadow-xl">
-                        <button
-                          onClick={() => {
-                            setEditPayment(p);
-                            setMenuOpen(null);
-                          }}
-                          className="flex w-full items-center gap-2 px-3 py-2 text-xs text-text-secondary hover:bg-bg-elevated"
-                        >
-                          <Pencil className="h-3.5 w-3.5" /> Modifier
-                        </button>
-                        <button
-                          onClick={() => handleExportPDF(p)}
-                          className="flex w-full items-center gap-2 px-3 py-2 text-xs text-text-secondary hover:bg-bg-elevated"
-                        >
-                          <Download className="h-3.5 w-3.5" /> Export PDF
-                        </button>
-                        <button
-                          onClick={() => handleDelete(p.id)}
-                          className="flex w-full items-center gap-2 px-3 py-2 text-xs text-red-400 hover:bg-bg-elevated"
-                        >
-                          <Trash2 className="h-3.5 w-3.5" /> Supprimer
-                        </button>
-                      </div>
-                    )}
-                  </div>
+                  <button
+                    data-payment-menu-trigger
+                    onClick={(e) => handleMenuToggle(e, p.id)}
+                    className="text-text-muted hover:text-text-primary"
+                  >
+                    <MoreHorizontal className="h-4 w-4" />
+                  </button>
                 </div>
               </div>
             );
@@ -505,6 +520,49 @@ export default function PaymentsPage({
           />
         )}
       </AnimatePresence>
+
+      {/* Dropdown menu rendered via portal to escape table's overflow-hidden */}
+      {menuOpen &&
+        menuPos &&
+        typeof document !== "undefined" &&
+        (() => {
+          const p = payments.find((pm) => pm.id === menuOpen);
+          if (!p) return null;
+          return createPortal(
+            <div
+              data-payment-menu
+              style={{
+                position: "fixed",
+                top: menuPos.top,
+                right: menuPos.right,
+              }}
+              className="z-50 w-36 rounded-lg border border-border-subtle bg-bg-surface py-1 shadow-xl"
+            >
+              <button
+                onClick={() => {
+                  setEditPayment(p);
+                  setMenuOpen(null);
+                }}
+                className="flex w-full items-center gap-2 px-3 py-2 text-xs text-text-secondary hover:bg-bg-elevated"
+              >
+                <Pencil className="h-3.5 w-3.5" /> Modifier
+              </button>
+              <button
+                onClick={() => handleExportPDF(p)}
+                className="flex w-full items-center gap-2 px-3 py-2 text-xs text-text-secondary hover:bg-bg-elevated"
+              >
+                <Download className="h-3.5 w-3.5" /> Export PDF
+              </button>
+              <button
+                onClick={() => handleDelete(p.id)}
+                className="flex w-full items-center gap-2 px-3 py-2 text-xs text-red-400 hover:bg-bg-elevated"
+              >
+                <Trash2 className="h-3.5 w-3.5" /> Supprimer
+              </button>
+            </div>,
+            document.body
+          );
+        })()}
     </main>
   );
 }
