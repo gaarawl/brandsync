@@ -214,22 +214,32 @@ export default function AIChatPage({ summary }: { summary: Summary }) {
           </div>
         </div>
 
-        {/* Tabs */}
-        <div className="flex items-center gap-3 mt-4">
-          {tabs.map((tab) => (
-            <button
-              key={tab.key}
-              onClick={() => setActiveTab(tab.key)}
-              className={`flex items-center gap-3 rounded-xl px-6 py-3 text-base font-medium transition-colors ${
-                activeTab === tab.key
-                  ? "bg-accent/10 text-accent"
-                  : "text-text-muted hover:text-text-primary hover:bg-bg-elevated"
-              }`}
-            >
-              <tab.icon className="h-5 w-5" />
-              {tab.label}
-            </button>
-          ))}
+        {/* Tabs — segmented pill with sliding indicator */}
+        <div className="mt-4 inline-flex items-center gap-1 rounded-2xl border border-border-subtle bg-bg-surface/60 p-1.5 backdrop-blur-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.02)]">
+          {tabs.map((tab) => {
+            const isActive = activeTab === tab.key;
+            return (
+              <button
+                key={tab.key}
+                onClick={() => setActiveTab(tab.key)}
+                className={`relative flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-medium transition-colors duration-200 ${
+                  isActive
+                    ? "text-white"
+                    : "text-text-muted hover:text-text-primary"
+                }`}
+              >
+                {isActive && (
+                  <motion.span
+                    layoutId="ai-tab-pill"
+                    className="absolute inset-0 rounded-xl bg-gradient-to-br from-violet-600 via-violet-500 to-purple-600 shadow-[0_4px_16px_-2px_rgba(139,92,246,0.5),inset_0_1px_0_rgba(255,255,255,0.15)]"
+                    transition={{ type: "spring", stiffness: 500, damping: 32 }}
+                  />
+                )}
+                <tab.icon className="relative z-10 h-4 w-4" />
+                <span className="relative z-10">{tab.label}</span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
