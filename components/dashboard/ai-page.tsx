@@ -214,30 +214,29 @@ export default function AIChatPage({ summary }: { summary: Summary }) {
           </div>
         </div>
 
-        {/* Tabs — segmented pill with sliding indicator */}
-        <div className="mt-4 inline-flex items-center gap-1 rounded-2xl border border-border-subtle bg-bg-surface/60 p-1.5 backdrop-blur-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.02)]">
+        {/* Tabs — distinct card-style with strong active gradient */}
+        <div className="mt-4 flex items-center gap-2">
           {tabs.map((tab) => {
             const isActive = activeTab === tab.key;
             return (
-              <button
+              <motion.button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key)}
-                className={`relative flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-medium transition-colors duration-200 ${
+                whileHover={{ scale: isActive ? 1 : 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                className={`relative flex items-center gap-2.5 rounded-xl px-5 py-2.5 text-sm font-semibold border transition-all duration-300 ${
                   isActive
-                    ? "text-white"
-                    : "text-text-muted hover:text-text-primary"
+                    ? "bg-gradient-to-br from-violet-600 via-violet-500 to-purple-600 text-white border-violet-400/40 shadow-[0_8px_28px_-6px_rgba(139,92,246,0.55),inset_0_1px_0_rgba(255,255,255,0.2)]"
+                    : "bg-bg-elevated/50 border-border-subtle text-text-muted hover:border-accent/40 hover:bg-bg-elevated hover:text-text-primary"
                 }`}
               >
-                {isActive && (
-                  <motion.span
-                    layoutId="ai-tab-pill"
-                    className="absolute inset-0 rounded-xl bg-gradient-to-br from-violet-600 via-violet-500 to-purple-600 shadow-[0_4px_16px_-2px_rgba(139,92,246,0.5),inset_0_1px_0_rgba(255,255,255,0.15)]"
-                    transition={{ type: "spring", stiffness: 500, damping: 32 }}
-                  />
-                )}
-                <tab.icon className="relative z-10 h-4 w-4" />
-                <span className="relative z-10">{tab.label}</span>
-              </button>
+                <tab.icon
+                  className={`h-4 w-4 ${
+                    isActive ? "text-white" : "text-accent/70"
+                  }`}
+                />
+                {tab.label}
+              </motion.button>
             );
           })}
         </div>

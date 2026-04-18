@@ -246,10 +246,10 @@ export default function CollabListPage({
             <button
               key={f.key}
               onClick={() => setActiveFilter(f.key)}
-              className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors whitespace-nowrap ${
+              className={`rounded-lg border px-3 py-1.5 text-xs font-semibold transition-all whitespace-nowrap ${
                 activeFilter === f.key
-                  ? "bg-accent/10 text-accent"
-                  : "text-text-muted hover:text-text-primary hover:bg-bg-elevated"
+                  ? "bg-gradient-to-br from-violet-600 to-purple-600 text-white border-violet-400/40 shadow-[0_4px_14px_-3px_rgba(139,92,246,0.5)]"
+                  : "bg-bg-elevated/50 border-border-subtle text-text-muted hover:border-accent/40 hover:bg-bg-elevated hover:text-text-primary"
               }`}
             >
               {f.label}
