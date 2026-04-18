@@ -107,12 +107,31 @@ export default function PricingPage() {
         body: JSON.stringify({ priceId }),
       });
 
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        console.error("[checkout] HTTP", res.status, data);
+        if (res.status === 401) {
+          alert("Tu dois être connecté pour souscrire. Connecte-toi puis réessaie.");
+          window.location.href = "/login";
+          return;
+        }
+        alert(
+          data?.error
+            ? `Erreur Stripe : ${data.error}`
+            : `Erreur serveur (${res.status}). Réessaie dans un instant.`
+        );
+        return;
+      }
+
       if (data.url) {
         window.location.href = data.url;
+      } else {
+        alert("Réponse invalide de Stripe. Contacte le support.");
       }
-    } catch {
-      alert("Erreur lors de la redirection vers le paiement.");
+    } catch (err) {
+      console.error("[checkout] fetch failed", err);
+      alert("Erreur réseau. Vérifie ta connexion et réessaie.");
     } finally {
       setLoading(false);
     }
