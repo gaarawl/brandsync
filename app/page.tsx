@@ -5,7 +5,6 @@ import ProblemSection from "@/components/landing/problem-section";
 import SolutionSection from "@/components/landing/solution-section";
 import FeaturesSection from "@/components/landing/features-section";
 import HowItWorks from "@/components/landing/how-it-works";
-import Testimonials from "@/components/landing/testimonials";
 import Pricing from "@/components/landing/pricing";
 import Faq from "@/components/landing/faq";
 import FinalCta from "@/components/landing/final-cta";
@@ -22,7 +21,6 @@ export default function Home() {
         <SolutionSection />
         <FeaturesSection />
         <HowItWorks />
-        <Testimonials />
         <Pricing />
         <Faq />
         <FinalCta />
