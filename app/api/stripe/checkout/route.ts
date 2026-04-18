@@ -108,16 +108,11 @@ export async function POST(req: NextRequest) {
       }),
       success_url: `${origin}/dashboard/settings?billing=success`,
       cancel_url: `${origin}/pricing?billing=cancelled`,
-      metadata: { userId },
+      metadata: { userId, usedCoupon: eligibleForPromo ? "true" : "false" },
     });
 
-    // Mark promo as used
-    if (eligibleForPromo) {
-      await prisma.user.update({
-        where: { id: userId },
-        data: { usedPromotion: true },
-      });
-    }
+    // Note: usedPromotion is marked only when payment succeeds (in webhook),
+    // not here. Otherwise abandoning checkout burns the promo.
 
     return NextResponse.json({ url: checkoutSession.url });
   } catch (err: unknown) {

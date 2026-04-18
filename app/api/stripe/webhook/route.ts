@@ -45,6 +45,7 @@ export async function POST(req: NextRequest) {
     case "checkout.session.completed": {
       const session = event.data.object;
       const customerId = session.customer as string;
+      const usedCoupon = session.metadata?.usedCoupon === "true";
 
       // Retrieve subscription to detect plan
       let plan = "pro";
@@ -61,7 +62,10 @@ export async function POST(req: NextRequest) {
 
       await prisma.user.updateMany({
         where: { stripeCustomerId: customerId },
-        data: { plan },
+        data: {
+          plan,
+          ...(usedCoupon && { usedPromotion: true }),
+        },
       });
       break;
     }
