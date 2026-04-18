@@ -1,20 +1,15 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { unstable_cache } from "next/cache";
 import Sidebar from "@/components/dashboard/sidebar";
 
-const getUserPlan = unstable_cache(
-  async (userId: string) => {
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { plan: true },
-    });
-    return user?.plan || "free";
-  },
-  ["user-plan"],
-  { revalidate: 300, tags: ["user-plan"] }
-);
+async function getUserPlan(userId: string) {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { plan: true },
+  });
+  return user?.plan || "free";
+}
 
 export default async function DashboardLayout({
   children,

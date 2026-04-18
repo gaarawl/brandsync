@@ -13,6 +13,7 @@ import {
   Shield,
   Zap,
   ArrowLeft,
+  CheckCircle2,
 } from "lucide-react";
 
 const plans = [
@@ -77,9 +78,42 @@ const highlights = [
   { icon: Shield, text: "Donn\u00E9es s\u00E9curis\u00E9es" },
 ];
 
-export default function PricingPage() {
+export default function PricingPage({
+  currentPlan,
+}: {
+  currentPlan?: string | null;
+}) {
   const [billing, setBilling] = useState<"monthly" | "yearly">("monthly");
   const [loading, setLoading] = useState(false);
+  const [portalLoading, setPortalLoading] = useState(false);
+
+  const isOnPaidPlan = currentPlan === "pro" || currentPlan === "business";
+
+  const handleOpenPortal = async () => {
+    setPortalLoading(true);
+    try {
+      const res = await fetch("/api/stripe/portal", { method: "POST" });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        alert(
+          data?.error
+            ? `Erreur : ${data.error}`
+            : `Erreur serveur (${res.status}). R\u00E9essaie plus tard.`
+        );
+        return;
+      }
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        alert("R\u00E9ponse invalide. Contacte le support.");
+      }
+    } catch (err) {
+      console.error("[portal] fetch failed", err);
+      alert("Erreur r\u00E9seau. V\u00E9rifie ta connexion et r\u00E9essaie.");
+    } finally {
+      setPortalLoading(false);
+    }
+  };
 
   const handleSubscribe = async (tier: string) => {
     if (tier === "free") return;
@@ -221,26 +255,36 @@ export default function PricingPage() {
 
         {/* Plans */}
         <div className="grid gap-6 md:grid-cols-3 max-w-5xl mx-auto mb-16">
-          {plans.map((plan, i) => (
+          {plans.map((plan, i) => {
+            const isCurrentPlan = currentPlan === plan.tier;
+            return (
             <motion.div
               key={plan.name}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.15 + i * 0.1 }}
               className={`relative rounded-2xl border p-7 ${
-                plan.popular
+                isCurrentPlan
+                  ? "border-green-500/60 bg-bg-surface shadow-lg shadow-green-500/10"
+                  : plan.popular
                   ? "border-accent bg-bg-surface shadow-lg shadow-accent/5"
                   : plan.tier === "business"
                   ? "border-amber-500/50 bg-bg-surface shadow-lg shadow-amber-500/5"
                   : "border-border-subtle bg-bg-surface"
               }`}
             >
-              {plan.popular && (
+              {isCurrentPlan && (
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-green-500 px-3 py-0.5 text-[11px] font-medium text-black flex items-center gap-1">
+                  <CheckCircle2 className="h-3 w-3" />
+                  Plan actuel
+                </div>
+              )}
+              {!isCurrentPlan && plan.popular && (
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-accent px-3 py-0.5 text-[11px] font-medium text-bg-primary">
                   Le plus choisi
                 </div>
               )}
-              {plan.tier === "business" && (
+              {!isCurrentPlan && plan.tier === "business" && (
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-amber-500 px-3 py-0.5 text-[11px] font-medium text-black">
                   Premium
                 </div>
@@ -329,7 +373,45 @@ export default function PricingPage() {
                 </AnimatePresence>
               </div>
 
-              {plan.tier !== "free" ? (
+              {isCurrentPlan ? (
+                <button
+                  disabled
+                  className="w-full rounded-xl py-3.5 text-sm font-semibold mb-6 bg-green-500/15 text-green-400 border border-green-500/30 cursor-default flex items-center justify-center gap-2"
+                >
+                  <CheckCircle2 className="h-4 w-4" />
+                  Plan actuel
+                </button>
+              ) : isOnPaidPlan ? (
+                <button
+                  onClick={handleOpenPortal}
+                  disabled={portalLoading}
+                  className={`group relative w-full overflow-hidden rounded-xl py-3.5 text-sm font-semibold mb-6 text-white disabled:opacity-50 ${
+                    plan.tier === "business"
+                      ? "bg-gradient-to-b from-[#f59e0b] to-[#d97706] shadow-[0_0_25px_rgba(245,158,11,0.4),0_0_60px_rgba(245,158,11,0.15)]"
+                      : plan.tier === "free"
+                      ? "bg-bg-elevated border border-border-subtle text-text-secondary"
+                      : "bg-gradient-to-b from-[#a78bfa] to-[#7c3aed] shadow-[0_0_25px_rgba(139,92,246,0.5),0_0_60px_rgba(139,92,246,0.2)]"
+                  }`}
+                >
+                  {plan.tier !== "free" && (
+                    <>
+                      <span className="absolute inset-0 rounded-xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.3)]" />
+                      <span className={`absolute -inset-2 rounded-2xl blur-xl opacity-70 group-hover:opacity-100 transition-all duration-500 ${
+                        plan.tier === "business" ? "bg-amber-500/25 group-hover:bg-amber-500/35" : "bg-accent/25 group-hover:bg-accent/35"
+                      }`} />
+                      <span className="absolute inset-x-4 -top-px h-px bg-gradient-to-r from-transparent via-white/60 to-transparent" />
+                      <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+                    </>
+                  )}
+                  <span className="relative z-10">
+                    {portalLoading
+                      ? "Redirection..."
+                      : plan.tier === "free"
+                      ? "R\u00E9trograder"
+                      : "Changer de plan"}
+                  </span>
+                </button>
+              ) : plan.tier !== "free" ? (
                 <button
                   onClick={() => handleSubscribe(plan.tier)}
                   disabled={loading}
@@ -377,7 +459,8 @@ export default function PricingPage() {
                 ))}
               </div>
             </motion.div>
-          ))}
+            );
+          })}
         </div>
 
         {/* Highlights */}

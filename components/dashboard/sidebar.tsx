@@ -209,8 +209,12 @@ export default function Sidebar({ user }: SidebarProps) {
                 : "text-text-primary"
             )}>
               {user.name || "Utilisateur"}
-              {user.plan === "business" && <Star className="h-3 w-3 text-amber-400 fill-amber-400 shrink-0" />}
-              {user.plan === "pro" && <Star className="h-3 w-3 text-violet-400 fill-violet-400 shrink-0" />}
+              {user.plan === "business" && (
+                <Crown className="h-3 w-3 text-amber-400 fill-amber-400 shrink-0" />
+              )}
+              {user.plan === "pro" && (
+                <Star className="h-3 w-3 text-violet-400 fill-violet-400 shrink-0" />
+              )}
             </p>
             <p className="text-[10px] text-text-muted truncate">
               {user.email}
