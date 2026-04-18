@@ -12,5 +12,13 @@ export default async function Pricing() {
     });
     currentPlan = user?.plan || "free";
   }
-  return <PricingPage currentPlan={currentPlan} />;
+
+  const priceIds = {
+    proMonthly: process.env.STRIPE_PRO_MONTHLY_PRICE_ID || "",
+    proYearly: process.env.STRIPE_PRO_YEARLY_PRICE_ID || "",
+    businessMonthly: process.env.STRIPE_BUSINESS_MONTHLY_PRICE_ID || "",
+    businessYearly: process.env.STRIPE_BUSINESS_YEARLY_PRICE_ID || "",
+  };
+
+  return <PricingPage currentPlan={currentPlan} priceIds={priceIds} />;
 }

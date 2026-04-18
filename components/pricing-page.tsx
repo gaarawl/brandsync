@@ -78,10 +78,19 @@ const highlights = [
   { icon: Shield, text: "Donn\u00E9es s\u00E9curis\u00E9es" },
 ];
 
+type PriceIds = {
+  proMonthly: string;
+  proYearly: string;
+  businessMonthly: string;
+  businessYearly: string;
+};
+
 export default function PricingPage({
   currentPlan,
+  priceIds,
 }: {
   currentPlan?: string | null;
+  priceIds?: PriceIds;
 }) {
   const [billing, setBilling] = useState<"monthly" | "yearly">("monthly");
   const [loading, setLoading] = useState(false);
@@ -119,19 +128,21 @@ export default function PricingPage({
     if (tier === "free") return;
     setLoading(true);
 
-    let priceId: string;
-    if (tier === "business") {
-      priceId =
-        billing === "monthly"
-          ? process.env.NEXT_PUBLIC_STRIPE_BUSINESS_MONTHLY_PRICE_ID || ""
-          : process.env.NEXT_PUBLIC_STRIPE_BUSINESS_YEARLY_PRICE_ID || "";
-    } else {
-      priceId =
-        billing === "monthly"
-          ? process.env.NEXT_PUBLIC_STRIPE_MONTHLY_PRICE_ID ||
-            "price_1TL3RuLVSEf30cSA5RBI6eKD"
-          : process.env.NEXT_PUBLIC_STRIPE_YEARLY_PRICE_ID ||
-            "price_1TL3RuLVSEf30cSAxbkyUNnN";
+    let priceId = "";
+    if (priceIds) {
+      if (tier === "business") {
+        priceId = billing === "monthly" ? priceIds.businessMonthly : priceIds.businessYearly;
+      } else {
+        priceId = billing === "monthly" ? priceIds.proMonthly : priceIds.proYearly;
+      }
+    }
+
+    if (!priceId) {
+      alert(
+        "Prix non configur\u00E9 pour ce plan. Contacte le support ou r\u00E9essaie plus tard."
+      );
+      setLoading(false);
+      return;
     }
 
     try {

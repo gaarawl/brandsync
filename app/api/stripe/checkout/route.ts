@@ -3,10 +3,8 @@ import { prisma } from "@/lib/prisma";
 import { getStripe } from "@/lib/stripe";
 import { NextRequest, NextResponse } from "next/server";
 
-const PRO_MONTHLY_PRICE_ID =
-  process.env.STRIPE_PRO_MONTHLY_PRICE_ID || "price_1TL3RuLVSEf30cSA5RBI6eKD";
-const PRO_YEARLY_PRICE_ID =
-  process.env.STRIPE_PRO_YEARLY_PRICE_ID || "price_1TL3RuLVSEf30cSAxbkyUNnN";
+const PRO_MONTHLY_PRICE_ID = process.env.STRIPE_PRO_MONTHLY_PRICE_ID || "";
+const PRO_YEARLY_PRICE_ID = process.env.STRIPE_PRO_YEARLY_PRICE_ID || "";
 const BUSINESS_MONTHLY_PRICE_ID =
   process.env.STRIPE_BUSINESS_MONTHLY_PRICE_ID || "";
 const BUSINESS_YEARLY_PRICE_ID =
