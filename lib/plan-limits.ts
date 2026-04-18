@@ -1,7 +1,7 @@
 export const PLAN_LIMITS = {
   free: {
     dailyEmails: 5,
-    maxRecipients: 5,
+    maxRecipients: 3,
     aiMessagesPerDay: 10,
   },
   pro: {
