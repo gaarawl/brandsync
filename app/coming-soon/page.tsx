@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Sparkles, Send, CheckCircle2, Loader2 } from "lucide-react";
 
 // ── Set your launch date here (midnight Paris time) ──
-const LAUNCH_DATE = new Date("2026-04-19T00:00:00+02:00");
+const LAUNCH_DATE = new Date("2026-04-26T00:00:00+02:00");
 
 function getTimeLeft() {
   const diff = Math.max(0, LAUNCH_DATE.getTime() - Date.now());

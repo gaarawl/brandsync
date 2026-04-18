@@ -8,13 +8,14 @@ import { sendCampaignEmail } from "@/lib/email";
 // ── Limites par plan ───────────────────────────────────────────────
 
 const PLAN_LIMITS = {
-  free: { dailyEmails: 5, maxRecipients: 3 },
-  pro: { dailyEmails: 50, maxRecipients: 10 },
+  free: { dailyEmails: 5, maxRecipients: 5 },
+  pro: { dailyEmails: 50, maxRecipients: 50 },
+  business: { dailyEmails: 200, maxRecipients: 200 },
 } as const;
 
 export async function getEmailUsage() {
   const session = await auth();
-  if (!session?.user?.id) return { sentToday: 0, limit: 5, maxRecipients: 3, plan: "free" };
+  if (!session?.user?.id) return { sentToday: 0, limit: 5, maxRecipients: 5, plan: "free" };
 
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },
